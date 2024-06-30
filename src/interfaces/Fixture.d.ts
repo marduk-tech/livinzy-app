@@ -2,6 +2,7 @@ export interface Fixture {
   _id?: string;
   fixtureType?: {
     fixtureType: string;
+    description: string;
     _id: string;
   };
   cost?: Number;
