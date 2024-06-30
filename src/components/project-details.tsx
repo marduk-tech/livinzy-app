@@ -204,12 +204,12 @@ const ProjectDetails: React.FC = () => {
         })}
         <Drawer
           title=""
-          placement="bottom"
-          
+          placement={isMobile ? "bottom": "right"}
           size="large"
           style={{
             borderTopLeftRadius: 16,
-            borderTopRightRadius: 16,
+            borderTopRightRadius: isMobile ? 16: 0,
+            borderBottomLeftRadius: isMobile ? 0: 16,
             boxShadow: "0 0 8px #ccc",
           }}
           styles={{
