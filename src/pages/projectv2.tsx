@@ -3,14 +3,23 @@ import { useParams } from "react-router-dom";
 import { useFetchSlidesByProject } from "../hooks/use-slides";
 import { useFetchSpacesByProject } from "../hooks/use-spaces";
 import { useFetchProject } from "../hooks/use-projects";
-import { Carousel, Col, Flex, Row, Tabs, Typography } from "antd";
+import {
+  Carousel,
+  Col,
+  Drawer,
+  Flex,
+  Image,
+  Row,
+  Tabs,
+  Typography,
+} from "antd";
 import { COLORS } from "../styles/colors";
 import { Slide } from "../interfaces/Slide";
 import { Space } from "../interfaces/Space";
 import { useFetchFixturesByProject } from "../hooks/use-fixtures";
 import { useDevice } from "../libs/device";
 import { Fixture } from "../interfaces/Fixture";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 
 const ProjectV2: React.FC = () => {
   const { projectId } = useParams();
@@ -29,8 +38,9 @@ const ProjectV2: React.FC = () => {
 
   const [slidesSortedBySpace, setSlidesSortedBySpace] = useState<Slide[]>();
   const [currentSlide, setCurrentSlide] = useState<Slide>();
+  const [fixtureSelected, setFixtureSelected] = useState<Fixture>();
 
-  const [activeTab, setActiveTab] = useState<string>();
+  const [activeSpace, setActiveSpace] = useState<string>();
   const { data: fixtures, isLoading: fixturesLoading } =
     useFetchFixturesByProject(projectId!);
 
@@ -38,7 +48,7 @@ const ProjectV2: React.FC = () => {
     console.log(currentSlide);
     const slideCurrent = slidesSortedBySpace![currentSlide];
     setCurrentSlide(slideCurrent);
-    setActiveTab(slideCurrent.spaces![0]);
+    setActiveSpace(slideCurrent.spaces![0]);
   };
 
   useEffect(() => {
@@ -52,7 +62,7 @@ const ProjectV2: React.FC = () => {
     );
     setSlidesSortedBySpace(slidesSorted);
     setCurrentSlide(slidesSorted![0]);
-    setActiveTab(slidesSorted![0].spaces![0]!);
+    setActiveSpace(slidesSorted![0].spaces![0]!);
   }, [slides]);
 
   /**
@@ -77,7 +87,7 @@ const ProjectV2: React.FC = () => {
     return (
       <Tabs
         defaultActiveKey={validSpaces[0]._id}
-        activeKey={activeTab}
+        activeKey={activeSpace}
         onChange={(activeKey: string) => {
           const activeSlidePosition = slidesSortedBySpace!
             .map((s: Slide) => (s.spaces && s.spaces.length ? s.spaces[0] : ""))
@@ -97,7 +107,7 @@ const ProjectV2: React.FC = () => {
                 gap={16}
                 style={{
                   backgroundColor: COLORS.textColorDark,
-                  padding: "16px 24px"
+                  padding: "16px 24px",
                 }}
               >
                 <Typography.Title
@@ -110,7 +120,7 @@ const ProjectV2: React.FC = () => {
                   style={{ color: "white" }}
                 ></InfoCircleOutlined>
               </Flex>
-            ) : null
+            ) : null,
           };
         })}
       />
@@ -129,7 +139,7 @@ const ProjectV2: React.FC = () => {
           border: "2px solid",
           borderColor: COLORS.textColorDark,
           borderRadius: 16,
-          padding: "4px 16px"
+          padding: "4px 16px",
         }}
       >
         {info}
@@ -138,11 +148,11 @@ const ProjectV2: React.FC = () => {
   };
 
   const renderSpaceFixtures = () => {
-    if (!activeTab) {
+    if (!activeSpace) {
       return;
     }
     const spaceSlides = slides?.filter(
-      (s: Slide) => s.spaces?.includes(activeTab)
+      (s: Slide) => s.spaces?.includes(activeSpace)
     );
     const uniqueFixturesIds: string[] = [];
     spaceSlides?.forEach((s: Slide) => {
@@ -157,29 +167,134 @@ const ProjectV2: React.FC = () => {
       fixtures.find((fo: Fixture) => fo._id == f)
     );
 
-    return spaceFixtures.map((fix: Fixture, index: number) => {
-      return (
-        <Flex style={{ padding: 16 }} align="center" gap={16}>
-          <Flex
-            align="center"
-            justify="center"
-            style={{
-              borderRadius: "50%",
-              border: "1px solid",
-              borderColor: COLORS.textColorDark,
-              textAlign: "center",
-              width: 30,
-              height: 30
-            }}
-          >
-            <Typography.Text>{index + 1}</Typography.Text>
-          </Flex>
-          <Typography.Text>
-            {fix.designName || fix.fixtureType?.fixtureType}
-          </Typography.Text>
-        </Flex>
-      );
-    });
+    return (
+      <Flex vertical>
+        {spaceFixtures.map((fix: Fixture, index: number) => {
+          return (
+            <Flex
+              style={{ padding: 16 }}
+              align="center"
+              gap={16}
+              onClick={() => {
+                setFixtureSelected(fix);
+              }}
+            >
+              <Flex
+                align="center"
+                justify="center"
+                style={{
+                  borderRadius: "50%",
+                  border: "1px solid",
+                  borderColor: COLORS.textColorDark,
+                  textAlign: "center",
+                  width: 30,
+                  height: 30,
+                }}
+              >
+                <Typography.Text>{index + 1}</Typography.Text>
+              </Flex>
+              <Typography.Text>
+                {fix.designName || fix.fixtureType?.fixtureType}
+              </Typography.Text>
+            </Flex>
+          );
+        })}
+        <Drawer
+          title=""
+          placement="bottom"
+          size="large"
+          style={{
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+            boxShadow: "0 0 8px #ccc",
+          }}
+          styles={{
+            body: {
+              padding: 16,
+            },
+            header: {
+              display: "none",
+            },
+          }}
+          onClose={() => {
+            setFixtureSelected(undefined);
+          }}
+          open={!!fixtureSelected}
+          getContainer={false}
+        >
+          {fixtureSelected && (
+            <Flex vertical>
+              <Flex align="center">
+                <Typography.Title style={{ margin: 0 }} level={3}>
+                  {fixtureSelected?.designName ||
+                    fixtureSelected?.fixtureType?.fixtureType}
+                </Typography.Title>
+                <CloseCircleOutlined
+                  onClick={() => {
+                    setFixtureSelected(undefined);
+                  }}
+                  style={{ marginLeft: "auto", fontSize: 24 }}
+                ></CloseCircleOutlined>
+              </Flex>
+              <Flex
+                align="center"
+                gap={16}
+                style={{
+                  flexGrow: 0,
+                  padding: 8,
+                  borderRadius: 8,
+                  backgroundColor: COLORS.bgColor,
+                  border: "1px solid",
+                  margin: "16px 0",
+                  borderColor: COLORS.borderColorDark,
+                }}
+              >
+                <Image
+                  height={32}
+                  src={
+                    spaces.find((s: Space) => s._id == activeSpace).spaceType
+                      .icon
+                  }
+                ></Image>
+                <Typography.Text>
+                  {spaces.find((s: Space) => s._id == activeSpace).name}
+                </Typography.Text>
+              </Flex>
+              <Carousel>
+                {slides!
+                  .filter((s: Slide) =>
+                    s.fixtures!.includes(fixtureSelected!._id!)
+                  )
+                  .map((s: Slide) => {
+                    return (
+                      <div>
+                        <div
+                          style={{
+                            backgroundImage: `url(${s!.url})`,
+                            backgroundPosition: "center",
+                            backgroundSize: "cover",
+                            backgroundRepeat: "no-repeat",
+                            borderRadius: 16,
+                            width: "100%",
+                            height: "300px",
+                            border: "1px solid",
+                            borderColor: COLORS.borderColor,
+                            flex: "none",
+                          }}
+                        ></div>
+                      </div>
+                    );
+                  })}
+              </Carousel>
+              <Typography.Text style={{marginTop: 16, fontSize: 20}}>
+                {fixtureSelected?.description ||
+                  fixtureSelected!.fixtureType!.description}
+              </Typography.Text>
+            </Flex>
+          )}
+        </Drawer>
+      </Flex>
+    );
   };
   if (
     fixturesLoading ||
@@ -197,7 +312,7 @@ const ProjectV2: React.FC = () => {
       style={{
         maxWidth: isMobile ? "100%" : 1200,
         width: "100%",
-        margin: "auto"
+        margin: "auto",
       }}
     >
       {/* The header bar including name, one liner, tags */}
@@ -238,7 +353,7 @@ const ProjectV2: React.FC = () => {
                             1.33333,
                         border: "1px solid",
                         borderColor: COLORS.borderColor,
-                        flex: "none"
+                        flex: "none",
                       }}
                     ></div>
                   </div>
