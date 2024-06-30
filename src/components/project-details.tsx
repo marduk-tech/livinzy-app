@@ -20,11 +20,14 @@ import { useFetchFixturesByProject } from "../hooks/use-fixtures";
 import { useDevice } from "../libs/device";
 import { Fixture } from "../interfaces/Fixture";
 import { InfoCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import ZoomedImage from "./common/zoomed-img";
+import useParentDimensions from "../hooks/use-parent-dimension";
 
-const ProjectV2: React.FC = () => {
+const ProjectDetails: React.FC = () => {
   const { projectId } = useParams();
   const { isMobile } = useDevice();
   const slidesCarouselRef = useRef(null);
+  const { ref, dimensions } = useParentDimensions();
 
   const { data: projectData, isLoading: projectDataLoading } = useFetchProject(
     projectId!
@@ -168,7 +171,7 @@ const ProjectV2: React.FC = () => {
     );
 
     return (
-      <Flex vertical>
+      <Flex vertical ref={ref}>
         {spaceFixtures.map((fix: Fixture, index: number) => {
           return (
             <Flex
@@ -202,6 +205,7 @@ const ProjectV2: React.FC = () => {
         <Drawer
           title=""
           placement="bottom"
+          
           size="large"
           style={{
             borderTopLeftRadius: 16,
@@ -238,19 +242,20 @@ const ProjectV2: React.FC = () => {
               </Flex>
               <Flex
                 align="center"
-                gap={16}
+                justify="center"
+                gap={8}
                 style={{
-                  flexGrow: 0,
-                  padding: 8,
+                  padding: "4px 0",
                   borderRadius: 8,
                   backgroundColor: COLORS.bgColor,
                   border: "1px solid",
                   margin: "16px 0",
+                  width: 200,
                   borderColor: COLORS.borderColorDark,
                 }}
               >
                 <Image
-                  height={32}
+                  height={28}
                   src={
                     spaces.find((s: Space) => s._id == activeSpace).spaceType
                       .icon
@@ -266,7 +271,21 @@ const ProjectV2: React.FC = () => {
                     s.fixtures!.includes(fixtureSelected!._id!)
                   )
                   .map((s: Slide) => {
-                    return (
+                    return fixtureSelected.imageBounds ? (
+                      <ZoomedImage
+                        imageUrl={s.url}
+                        imgHeight={
+                          fixtureSelected.imageBounds?.imageSize.height!
+                        }
+                        imgWidth={fixtureSelected.imageBounds?.imageSize.width}
+                        boxStartX={fixtureSelected.imageBounds?.startPoint.x}
+                        boxStartY={fixtureSelected.imageBounds?.startPoint.y}
+                        boxEndX={fixtureSelected.imageBounds?.endPoint.y}
+                        boxEndY={fixtureSelected.imageBounds?.endPoint.y}
+                        divWidth={dimensions.width}
+                        divHeight={300}
+                      ></ZoomedImage>
+                    ) : (
                       <div>
                         <div
                           style={{
@@ -286,7 +305,7 @@ const ProjectV2: React.FC = () => {
                     );
                   })}
               </Carousel>
-              <Typography.Text style={{marginTop: 16, fontSize: 20}}>
+              <Typography.Text style={{ marginTop: 16, fontSize: 20 }}>
                 {fixtureSelected?.description ||
                   fixtureSelected!.fixtureType!.description}
               </Typography.Text>
@@ -370,4 +389,4 @@ const ProjectV2: React.FC = () => {
   );
 };
 
-export default ProjectV2;
+export default ProjectDetails;
