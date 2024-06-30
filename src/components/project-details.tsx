@@ -204,12 +204,12 @@ const ProjectDetails: React.FC = () => {
         })}
         <Drawer
           title=""
-          placement={isMobile ? "bottom": "right"}
+          placement={isMobile ? "bottom" : "right"}
           size="large"
           style={{
             borderTopLeftRadius: 16,
-            borderTopRightRadius: isMobile ? 16: 0,
-            borderBottomLeftRadius: isMobile ? 0: 16,
+            borderTopRightRadius: isMobile ? 16 : 0,
+            borderBottomLeftRadius: isMobile ? 0 : 16,
             boxShadow: "0 0 8px #ccc",
           }}
           styles={{
@@ -265,7 +265,7 @@ const ProjectDetails: React.FC = () => {
                   {spaces.find((s: Space) => s._id == activeSpace).name}
                 </Typography.Text>
               </Flex>
-              <Carousel>
+              <Carousel style={{borderRadius: 16}}>
                 {slides!
                   .filter((s: Slide) =>
                     s.fixtures!.includes(fixtureSelected!._id!)
@@ -282,7 +282,9 @@ const ProjectDetails: React.FC = () => {
                         boxStartY={fixtureSelected.imageBounds?.startPoint.y}
                         boxEndX={fixtureSelected.imageBounds?.endPoint.y}
                         boxEndY={fixtureSelected.imageBounds?.endPoint.y}
-                        divWidth={dimensions.width}
+                        divWidth={
+                          isMobile ? window.innerWidth : dimensions.width
+                        }
                         divHeight={300}
                       ></ZoomedImage>
                     ) : (

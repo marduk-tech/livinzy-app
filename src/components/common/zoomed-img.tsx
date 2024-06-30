@@ -40,7 +40,6 @@ const ZoomedImage: React.FC<ZoomedImageProps> = ({
   return (
     <div
       style={{
-        borderRadius: 8,
         width: `${divWidth}px`,
         height: `${divHeight}px`,
         backgroundImage: `url(${imageUrl})`,
