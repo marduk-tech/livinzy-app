@@ -254,7 +254,7 @@ const ProjectDetails: React.FC = () => {
                 gap={8}
                 style={{
                   padding: "4px 0",
-                  marginBottom: 16
+                  marginBottom: 16,
                 }}
               >
                 <Image
@@ -452,11 +452,11 @@ const ProjectDetails: React.FC = () => {
       }}
     >
       {/* The header bar including name, one liner, tags */}
-      <Flex vertical style={{ padding: 16 }}>
+      <Flex vertical style={{ padding: 16 }} gap={8}>
         <Typography.Title level={3} style={{ margin: 0 }}>
           {projectData.name}
         </Typography.Title>
-        <Typography.Text
+        {/* <Typography.Text
           style={{
             margin: 0,
             color: COLORS.textColorMedium,
@@ -465,17 +465,39 @@ const ProjectDetails: React.FC = () => {
         >
           Efforless elegance meets clean lines in a modern minimalist haven.
         </Typography.Text>
-        <Flex style={{ marginTop: 16 }} gap={8}>
-          {renderProjectInfoTag(projectData.homeDetails?.homeType.homeType!)}
-          {renderProjectInfoTag(`${projectData.homeDetails?.size} sqft`)}
+         */}
+
+        <Flex vertical={isMobile} gap={8}>
+          <Flex gap={8}>
+            <Image
+              src={projectData.designerId.profilePicture}
+              width={42}
+              height="auto"
+              style={{ borderRadius: "50%" }}
+            ></Image>
+            <Flex vertical>
+              <Typography.Text
+                style={{ color: COLORS.textColorLight, fontSize: "70%" }}
+              >
+                Designed By
+              </Typography.Text>
+              <Typography.Title level={5} style={{ margin: 0 }}>
+                Harmonia Interiors
+              </Typography.Title>
+            </Flex>
+          </Flex>
+          <Flex gap={4}>
+            {renderProjectInfoTag(projectData.homeDetails?.homeType.homeType!)}
+            {renderProjectInfoTag(`${projectData.homeDetails?.size} sqft`)}
+          </Flex>
         </Flex>
       </Flex>
-      <Row>
+      <Row gutter={16}>
         <Col xs={24} sm={24} md={16} lg={16} xl={16}>
           <Carousel
             ref={slidesCarouselRef}
             afterChange={onSlideChange}
-            style={{ width: "97%", margin: "auto" }}
+            style={{ width: "100%", margin: "auto" }}
           >
             {slidesSortedBySpace &&
               slidesSortedBySpace!.map((sl: Slide) => {
@@ -485,14 +507,16 @@ const ProjectDetails: React.FC = () => {
                       style={{
                         backgroundImage: `url(${sl!.url})`,
                         backgroundPosition: "center",
+                        borderRadius: isMobile ? 0 : 16,
                         backgroundSize: "cover",
                         backgroundRepeat: "no-repeat",
-                        borderRadius: 16,
                         width: "100%",
                         height: isMobile
                           ? `${window.innerWidth}px`
-                          : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
-                            1.33333,
+                          : Math.min(
+                              window.innerWidth * 0.58,
+                              maxDesktopWidth
+                            ) / 1.33333,
                         border: "1px solid",
                         borderColor: COLORS.borderColor,
                         flex: "none",
@@ -510,13 +534,13 @@ const ProjectDetails: React.FC = () => {
           lg={8}
           xl={8}
           style={{
+            padding: 0,
             border: isMobile ? 0 : "2px solid",
             borderRadius: 16,
             borderColor: COLORS.borderColor,
           }}
         >
           {renderSpaceTabs()}
-          {/* {renderSpaceFixtures()} */}
         </Col>
       </Row>
     </Flex>

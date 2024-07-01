@@ -16,6 +16,8 @@ export const antTheme: ThemeConfig = {
       horizontalItemPadding: "24px 8px",
       inkBarColor: "none",
       lineWidth: 0,
+      itemColor: COLORS.textColorMedium,
+      itemHoverColor: COLORS.textColorDark,
       horizontalItemGutter: 16
     }
   }
