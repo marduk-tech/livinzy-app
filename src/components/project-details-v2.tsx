@@ -25,7 +25,6 @@ import { Fixture } from "../interfaces/Fixture";
 import { BorderOuterOutlined } from "@ant-design/icons";
 import ZoomedImage from "./common/zoomed-img";
 import useParentDimensions from "../hooks/use-parent-dimension";
-import StickyBox from "react-sticky-box";
 import { maxDesktopWidth } from "../libs/constants";
 
 const ProjectDetailsV2: React.FC = () => {

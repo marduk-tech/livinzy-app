@@ -22,10 +22,8 @@ import { Space } from "../interfaces/Space";
 import { useFetchFixturesByProject } from "../hooks/use-fixtures";
 import { useDevice } from "../libs/device";
 import { Fixture } from "../interfaces/Fixture";
-import { InfoCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import ZoomedImage from "./common/zoomed-img";
 import useParentDimensions from "../hooks/use-parent-dimension";
-import StickyBox from "react-sticky-box";
 import { maxDesktopWidth } from "../libs/constants";
 
 const ProjectDetails: React.FC = () => {
