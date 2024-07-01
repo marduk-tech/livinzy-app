@@ -1,6 +1,7 @@
 import React from "react";
 import { Col, Flex, Image, Input, Row, Typography } from "antd";
 import { COLORS } from "../styles/colors";
+import { maxDesktopWidth } from "../libs/constants";
 
 const pages = [
   {
@@ -68,7 +69,7 @@ const Home: React.FC = () => {
             <Flex
               vertical
               justify="flex-start"
-              style={{ maxWidth: 1300, margin: "0 auto" }}
+              style={{ maxWidth: maxDesktopWidth, margin: "0 auto" }}
             >
               {page.title}
               {page.subtitle}

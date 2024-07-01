@@ -15,7 +15,11 @@ export interface Project {
   name: string;
   homeDetails?: HomeDetails;
   previewImageUrl?: string;
-  designerId: string;
+  designerId: {
+    _id: string;
+    designerName: string,
+    profilePicture: string;
+  };
   archived: boolean;
 }
 

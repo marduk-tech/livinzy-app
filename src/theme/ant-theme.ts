@@ -9,5 +9,16 @@ export const antTheme: ThemeConfig = {
     controlHeight: 50,
     fontFamily: "Archivo",
     fontSize: 18
+  },
+  components: {
+    Tabs: {
+      itemActiveColor: COLORS.primaryColor,
+      horizontalItemPadding: "24px 8px",
+      inkBarColor: "none",
+      lineWidth: 0,
+      itemColor: COLORS.textColorMedium,
+      itemHoverColor: COLORS.textColorDark,
+      horizontalItemGutter: 16
+    }
   }
 };
