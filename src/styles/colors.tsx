@@ -9,5 +9,6 @@ export const COLORS = {
   borderColor: "#eee",
   borderColorDark: "#ddd",
   textColorDark: "#2D3F4E",
+  textColorMedium: "#7A8C9B",
   textColorLight: "#AAA"
 };
