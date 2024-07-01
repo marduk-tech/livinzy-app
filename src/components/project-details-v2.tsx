@@ -193,7 +193,7 @@ const ProjectDetailsV2: React.FC = () => {
             <Flex
               style={{
                 padding: "8px 0",
-                width: "calc(50% - 16px)",
+                width: `calc(${isMobile ? '50%' : '300px'} - 16px)`,
                 cursor: "pointer",
                 borderBottomColor: COLORS.borderColor,
               }}
