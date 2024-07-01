@@ -15,6 +15,7 @@ export interface Project {
   name: string;
   homeDetails?: HomeDetails;
   previewImageUrl?: string;
+  oneLiner?: string;
   designerId: {
     _id: string;
     designerName: string,

@@ -108,7 +108,11 @@ const ProjectDetailsV2: React.FC = () => {
         >
           <Flex vertical gap={16}>
             <Flex align="center" gap={16}>
-              <Image preview={false} src={space.spaceType.icon || "../../gen-room.png"} width={60} />
+              <Image
+                preview={false}
+                src={space.spaceType.icon || "../../gen-room.png"}
+                width={60}
+              />
               <Flex vertical>
                 <Typography.Title level={4} style={{ margin: 0 }}>
                   {space.name}
@@ -193,7 +197,7 @@ const ProjectDetailsV2: React.FC = () => {
             <Flex
               style={{
                 padding: "8px 0",
-                width: `calc(${isMobile ? '50%' : '300px'} - 16px)`,
+                width: `calc(${isMobile ? "50%" : "300px"} - 16px)`,
                 cursor: "pointer",
                 borderBottomColor: COLORS.borderColor,
               }}
@@ -394,25 +398,22 @@ const ProjectDetailsV2: React.FC = () => {
             }}
             gap={8}
           >
-            <Flex gap={4} style={{ color: COLORS.textColorMedium }}>
+            <Flex gap={4} style={{ color: COLORS.textColorDark }}>
               {projectData.homeDetails?.homeType.homeType!} ·
               {projectData.homeDetails?.size} sqft
             </Flex>
-            <Typography.Text
-              style={{
-                margin: 0,
-                lineHeight: "120%",
-                fontSize: 20,
-                color: COLORS.textColorMedium,
-              }}
-            >
-              Sophisticated and thoughtful home design that blends modern
-              functionality with warm, inviting aesthetics. Custom built-in
-              shelving and cabinets maximize storage. Colorful accents like
-              patterned wallpaper and blue bedding bring personality to neutral
-              backgrounds. Large windows and sheer curtains let in plenty of
-              natural light..
-            </Typography.Text>
+            {projectData.oneLiner && (
+              <Typography.Text
+                style={{
+                  margin: 0,
+                  lineHeight: "120%",
+                  fontSize: 20,
+                  color: COLORS.textColorMedium,
+                }}
+              >
+                {projectData.oneLiner!}
+              </Typography.Text>
+            )}
           </Flex>
         </Flex>
       </Flex>
