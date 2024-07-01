@@ -108,16 +108,18 @@ const ProjectDetailsV2: React.FC = () => {
         >
           <Flex vertical gap={16}>
             <Flex align="center" gap={16}>
-              <Image src={space.spaceType.icon} width={60} />
+              <Image preview={false} src={space.spaceType.icon || "../../gen-room.png"} width={60} />
               <Flex vertical>
                 <Typography.Title level={4} style={{ margin: 0 }}>
                   {space.name}
                 </Typography.Title>
-                <Typography.Text
-                  style={{ margin: 0, fontSize: 24, marginTop: -4 }}
-                >
-                  ₹{space.cost}
-                </Typography.Text>
+                {space.cost && (
+                  <Typography.Text
+                    style={{ margin: 0, fontSize: 24, marginTop: -4 }}
+                  >
+                    ₹{space.cost}
+                  </Typography.Text>
+                )}
               </Flex>
             </Flex>
 
@@ -240,12 +242,17 @@ const ProjectDetailsV2: React.FC = () => {
                     spaces.find((s: Space) => s._id == activeSpace).spaceType
                       .icon
                   }
+                  preview={false}
                 ></Image>
                 <Typography.Text>
                   {spaces.find((s: Space) => s._id == activeSpace).name}
                 </Typography.Text>
               </Flex>
-              <Carousel autoplay={true} autoplaySpeed={1000} style={{ borderRadius: 16 }}>
+              <Carousel
+                autoplay={true}
+                autoplaySpeed={1000}
+                style={{ borderRadius: 16 }}
+              >
                 {slides!
                   .filter((s: Slide) =>
                     s.fixtures!.includes(fixtureSelected!._id!)
@@ -361,6 +368,7 @@ const ProjectDetailsV2: React.FC = () => {
               width={42}
               height="auto"
               style={{ borderRadius: "50%" }}
+              preview={false}
             ></Image>
             <Flex vertical>
               <Typography.Text
