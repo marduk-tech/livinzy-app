@@ -1,5 +1,5 @@
 import { ThemeConfig } from "antd";
-import { COLORS } from "../styles/colors";
+import { COLORS, FONTS } from "../styles/style-constants";
 
 export const antTheme: ThemeConfig = {
   token: {
@@ -7,8 +7,8 @@ export const antTheme: ThemeConfig = {
     colorSuccess: COLORS.greenIdentifier,
     colorTextBase: COLORS.textColorDark,
     controlHeight: 50,
-    fontFamily: "Archivo",
-    fontSize: 18
+    fontFamily: FONTS.primary,
+    fontSize: 15,
   },
   components: {
     Tabs: {

@@ -16,12 +16,13 @@ import {
   TabsProps,
   Typography,
 } from "antd";
-import { COLORS } from "../styles/colors";
+import { COLORS, FONTS } from "../styles/style-constants";
 import { Slide } from "../interfaces/Slide";
 import { Space } from "../interfaces/Space";
 import { useFetchFixturesByProject } from "../hooks/use-fixtures";
 import { useDevice } from "../libs/device";
 import { Fixture } from "../interfaces/Fixture";
+import { BorderOuterOutlined } from "@ant-design/icons";
 import ZoomedImage from "./common/zoomed-img";
 import useParentDimensions from "../hooks/use-parent-dimension";
 import { maxDesktopWidth } from "../libs/constants";
@@ -89,86 +90,92 @@ const ProjectDetails: React.FC = () => {
    * Displays all spaces in a tabbed layout
    * @returns
    */
-  const renderSpaceTabs = () => {
+  const renderSpaces = () => {
     const validSpaces = filterZombieSpaces(spaces).sort(
       (s1: Space, s2: Space) => s2._id!.localeCompare(s1._id!)
     );
-    return (
-      <Tabs
-        renderTabBar={renderTabBar}
-        defaultActiveKey={validSpaces[0]._id}
-        activeKey={activeSpace}
-        onChange={(activeKey: string) => {
-          const activeSlidePosition = slidesSortedBySpace!
-            .map((s: Slide) => (s.spaces && s.spaces.length ? s.spaces[0] : ""))
-            .indexOf(activeKey);
-          (slidesCarouselRef.current! as any).goTo(activeSlidePosition);
-        }}
-        items={validSpaces.map((space: Space) => {
-          return {
-            key: space._id!,
-            label: space.name.toUpperCase(),
-            children: space.cost ? (
+    return validSpaces.map((space: Space) => {
+      return (
+        <Flex
+          vertical
+          style={{
+            padding: 16,
+            margin: 16,
+            borderRadius: 16,
+            border: "2px solid",
+            borderColor: COLORS.borderColor,
+          }}
+        >
+          <Flex vertical gap={16}>
+            <Flex align="center" gap={16}>
+              <Image
+                preview={false}
+                src={space.spaceType.icon || "../../gen-room.png"}
+                width={60}
+              />
               <Flex vertical>
-                <Flex
-                  gap={16}
-                  style={{
-                    backgroundColor: COLORS.textColorDark,
-                    padding: "16px 24px",
-                  }}
-                >
-                  <Flex vertical>
-                    <Typography.Text
-                      style={{ color: COLORS.textColorLight, fontSize: "70%" }}
-                    >
-                      Approx Cost
-                    </Typography.Text>
-                    <Typography.Title
-                      level={4}
-                      style={{ color: "white", margin: 0 }}
-                    >
-                      ₹{space.cost}
-                    </Typography.Title>
-                  </Flex>
-                  {/* <InfoCircleOutlined
+                <Typography.Title level={4} style={{ margin: 0 }}>
+                  {space.name}
+                </Typography.Title>
+                {space.cost && (
+                  <Typography.Text
+                    style={{ margin: 0, fontSize: 20, marginTop: -4, color: COLORS.textColorMedium }}
+                  >
+                    ₹{space.cost}
+                  </Typography.Text>
+                )}
+              </Flex>
+            </Flex>
+
+            {/* <InfoCircleOutlined
                   style={{ color: "white" }}
                 ></InfoCircleOutlined> */}
-                </Flex>
-                {renderSpaceFixtures()}
-              </Flex>
-            ) : null,
-          };
-        })}
-      />
-    );
+          </Flex>
+          <Flex
+            gap={16}
+            style={{
+              borderRadius: 16,
+              marginTop: 24,
+              overflowX: "scroll",
+              scrollbarWidth: "none" /* Firefox */,
+              msOverflowStyle: "none" /* IE and Edge */,
+            }}
+          >
+            {slides!
+              .filter((s: Slide) => s.spaces!.includes(space!._id!))
+              .map((s: Slide) => {
+                return (
+                  <div>
+                    <div
+                      style={{
+                        backgroundImage: `url(${s!.url})`,
+                        backgroundPosition: "center",
+                        backgroundSize: "cover",
+                        backgroundRepeat: "no-repeat",
+                        borderRadius: 16,
+                        width: Math.min(window.innerWidth, 400),
+                        height: 300,
+                        border: "1px solid",
+                        borderColor: COLORS.borderColor,
+                        flex: "none",
+                      }}
+                    ></div>
+                  </div>
+                );
+              })}
+          </Flex>
+          {renderSpaceFixtures(space._id!)}
+        </Flex>
+      );
+    });
   };
 
-  /**
-   * Tag info for a project
-   * @param info
-   * @returns
-   */
-  const renderProjectInfoTag = (info: string) => {
-    return (
-      <Flex
-        style={{
-          border: "2px solid",
-          borderColor: COLORS.textColorDark,
-          borderRadius: 16,
-          padding: "4px 16px",
-        }}
-      >
-        {info}
-      </Flex>
-    );
-  };
-
-  const renderSpaceFixtures = () => {
-    if (!activeSpace) {
+  const renderSpaceFixtures = (spaceId: string) => {
+    if (!spaceId) {
       return;
     }
     const spaceSlides = slides?.filter(
-      (s: Slide) => s.spaces?.includes(activeSpace)
+      (s: Slide) => s.spaces?.includes(spaceId)
     );
     const uniqueFixturesIds: string[] = [];
     spaceSlides?.forEach((s: Slide) => {
@@ -184,51 +191,29 @@ const ProjectDetails: React.FC = () => {
     );
 
     return (
-      <Flex vertical ref={ref}>
+      <Flex wrap="wrap" style={{ marginTop: 16 }} gap={16}>
         {spaceFixtures.map((fix: Fixture, index: number) => {
           return (
             <Flex
               style={{
-                padding: "16px 0",
-                backgroundColor: COLORS.bgColor,
+                padding: "8px 0",
+                width: `calc(${isMobile ? "50%" : "300px"} - 16px)`,
                 cursor: "pointer",
-                width: "90%",
-                margin: "auto",
-                marginTop: 16,
-                borderBottom: "1px solid",
-                borderColor: COLORS.borderColor,
+                borderBottomColor: COLORS.borderColor,
               }}
-              align="center"
-              gap={16}
               onClick={() => {
                 setFixtureSelected(fix);
               }}
+              vertical
             >
-              <Flex
-                align="center"
-                justify="center"
-                style={{
-                  textAlign: "center",
-                  width: 45,
-                  backgroundColor: COLORS.bgColorDark,
-                  borderRadius: 8,
-                  height: 45,
-                }}
+              <Typography.Text
+                style={{ color: COLORS.textColorLight, fontSize: "70%" }}
               >
-                <Typography.Text style={{ fontSize: 24, color: "white" }}>
-                  {index + 1}
-                </Typography.Text>
-              </Flex>
-              <Flex vertical>
-                <Typography.Text
-                  style={{ color: COLORS.textColorLight, fontSize: "70%" }}
-                >
-                  {fix.fixtureType?.fixtureType.toUpperCase()}
-                </Typography.Text>
-                <Typography.Title level={5} style={{ margin: 0 }}>
-                  {fix.designName || fix.fixtureType?.fixtureType}
-                </Typography.Title>
-              </Flex>
+                {fix.fixtureType ? fix.fixtureType?.fixtureType.toUpperCase() : ""}
+              </Typography.Text>
+              <Typography.Title level={5} style={{ margin: 0 }}>
+                {fix.designName || fix.fixtureType?.fixtureType}
+              </Typography.Title>
             </Flex>
           );
         })}
@@ -261,12 +246,17 @@ const ProjectDetails: React.FC = () => {
                     spaces.find((s: Space) => s._id == activeSpace).spaceType
                       .icon
                   }
+                  preview={false}
                 ></Image>
                 <Typography.Text>
                   {spaces.find((s: Space) => s._id == activeSpace).name}
                 </Typography.Text>
               </Flex>
-              <Carousel style={{ borderRadius: 16 }}>
+              <Carousel
+                autoplay={true}
+                autoplaySpeed={1000}
+                style={{ borderRadius: 16 }}
+              >
                 {slides!
                   .filter((s: Slide) =>
                     s.fixtures!.includes(fixtureSelected!._id!)
@@ -315,118 +305,6 @@ const ProjectDetails: React.FC = () => {
             </Flex>
           )}
         </Modal>
-        {/* <Drawer
-          title=""
-          placement={isMobile ? "bottom" : "right"}
-          size="large"
-          style={{
-            borderTopLeftRadius: 16,
-            borderTopRightRadius: isMobile ? 16 : 0,
-            borderBottomLeftRadius: isMobile ? 0 : 16,
-            boxShadow: "0 0 8px #ccc",
-          }}
-          styles={{
-            body: {
-              padding: 16,
-            },
-            header: {
-              display: "none",
-            },
-          }}
-          onClose={() => {
-            setFixtureSelected(undefined);
-          }}
-          open={!!fixtureSelected}
-          getContainer={false}
-        >
-          {fixtureSelected && (
-            <Flex vertical>
-              <Flex align="center">
-                <Typography.Title style={{ margin: 0 }} level={3}>
-                  {fixtureSelected?.designName ||
-                    fixtureSelected?.fixtureType?.fixtureType}
-                </Typography.Title>
-                <CloseCircleOutlined
-                  onClick={() => {
-                    setFixtureSelected(undefined);
-                  }}
-                  style={{ marginLeft: "auto", fontSize: 24 }}
-                ></CloseCircleOutlined>
-              </Flex>
-              <Flex
-                align="center"
-                justify="center"
-                gap={8}
-                style={{
-                  padding: "4px 0",
-                  borderRadius: 8,
-                  backgroundColor: COLORS.bgColor,
-                  border: "1px solid",
-                  margin: "16px 0",
-                  width: 200,
-                  borderColor: COLORS.borderColorDark,
-                }}
-              >
-                <Image
-                  height={28}
-                  src={
-                    spaces.find((s: Space) => s._id == activeSpace).spaceType
-                      .icon
-                  }
-                ></Image>
-                <Typography.Text>
-                  {spaces.find((s: Space) => s._id == activeSpace).name}
-                </Typography.Text>
-              </Flex>
-              <Carousel style={{ borderRadius: 16 }}>
-                {slides!
-                  .filter((s: Slide) =>
-                    s.fixtures!.includes(fixtureSelected!._id!)
-                  )
-                  .map((s: Slide) => {
-                    return fixtureSelected.imageBounds ? (
-                      <ZoomedImage
-                        imageUrl={s.url}
-                        imgHeight={
-                          fixtureSelected.imageBounds?.imageSize.height!
-                        }
-                        imgWidth={fixtureSelected.imageBounds?.imageSize.width}
-                        boxStartX={fixtureSelected.imageBounds?.startPoint.x}
-                        boxStartY={fixtureSelected.imageBounds?.startPoint.y}
-                        boxEndX={fixtureSelected.imageBounds?.endPoint.y}
-                        boxEndY={fixtureSelected.imageBounds?.endPoint.y}
-                        divWidth={
-                          isMobile ? window.innerWidth : dimensions.width
-                        }
-                        divHeight={300}
-                      ></ZoomedImage>
-                    ) : (
-                      <div>
-                        <div
-                          style={{
-                            backgroundImage: `url(${s!.url})`,
-                            backgroundPosition: "center",
-                            backgroundSize: "cover",
-                            backgroundRepeat: "no-repeat",
-                            borderRadius: 16,
-                            width: "100%",
-                            height: "300px",
-                            border: "1px solid",
-                            borderColor: COLORS.borderColor,
-                            flex: "none",
-                          }}
-                        ></div>
-                      </div>
-                    );
-                  })}
-              </Carousel>
-              <Typography.Text style={{ marginTop: 16, fontSize: 20 }}>
-                {fixtureSelected?.description ||
-                  fixtureSelected!.fixtureType!.description}
-              </Typography.Text>
-            </Flex>
-          )}
-        </Drawer> */}
       </Flex>
     );
   };
@@ -450,28 +328,51 @@ const ProjectDetails: React.FC = () => {
       }}
     >
       {/* The header bar including name, one liner, tags */}
+
+      <Carousel
+        ref={slidesCarouselRef}
+        afterChange={onSlideChange}
+        style={{ width: "100%", margin: "auto" }}
+      >
+        {slidesSortedBySpace &&
+          slidesSortedBySpace!.map((sl: Slide) => {
+            return (
+              <div>
+                <div
+                  style={{
+                    backgroundImage: `url(${sl!.url})`,
+                    backgroundPosition: "center",
+                    borderRadius: isMobile ? 0 : 16,
+                    backgroundSize: "cover",
+                    backgroundRepeat: "no-repeat",
+                    width: "100%",
+                    height: isMobile
+                      ? `${window.innerWidth}px`
+                      : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
+                        1.33333,
+                    border: "1px solid",
+                    borderColor: COLORS.borderColor,
+                    flex: "none",
+                  }}
+                ></div>
+              </div>
+            );
+          })}
+      </Carousel>
+
       <Flex vertical style={{ padding: 16 }} gap={8}>
         <Typography.Title level={3} style={{ margin: 0 }}>
           {projectData.name}
         </Typography.Title>
-        {/* <Typography.Text
-          style={{
-            margin: 0,
-            color: COLORS.textColorMedium,
-            lineHeight: "100%",
-          }}
-        >
-          Efforless elegance meets clean lines in a modern minimalist haven.
-        </Typography.Text>
-         */}
 
-        <Flex vertical={isMobile} gap={8}>
-          <Flex gap={8}>
+        <Flex vertical>
+          <Flex gap={8} style={{ marginTop: 16 }}>
             <Image
               src={projectData.designerId.profilePicture}
               width={42}
               height="auto"
               style={{ borderRadius: "50%" }}
+              preview={false}
             ></Image>
             <Flex vertical>
               <Typography.Text
@@ -479,68 +380,51 @@ const ProjectDetails: React.FC = () => {
               >
                 Designed By
               </Typography.Text>
-              <Typography.Title level={5} style={{ margin: 0 }}>
-                Harmonia Interiors
+              <Typography.Title level={5} style={{ margin: 0, marginTop: -4 }}>
+                {projectData.designerId.designerName}
               </Typography.Title>
             </Flex>
           </Flex>
-          <Flex gap={4}>
-            {renderProjectInfoTag(projectData.homeDetails?.homeType.homeType!)}
-            {renderProjectInfoTag(`${projectData.homeDetails?.size} sqft`)}
+
+          <Flex
+            vertical
+            style={{
+              borderBottom: "1px solid",
+              borderTop: "1px solid",
+              marginTop: 16,
+              padding: "16px 0",
+              borderBottomColor: COLORS.borderColor,
+              borderTopColor: COLORS.borderColor,
+            }}
+            gap={8}
+          >
+            <Flex gap={4} style={{ color: COLORS.textColorDark }}>
+              {projectData.homeDetails?.homeType.homeType!} ·
+              {projectData.homeDetails?.size} sqft
+            </Flex>
+            {projectData.oneLiner && (
+              <Typography.Text
+                style={{
+                  margin: 0,
+                  lineHeight: "120%",
+                  color: COLORS.textColorMedium,
+                  fontFamily: FONTS.regular
+                }}
+              >
+                {projectData.oneLiner!}
+              </Typography.Text>
+            )}
           </Flex>
         </Flex>
       </Flex>
-      <Row gutter={16}>
-        <Col xs={24} sm={24} md={16} lg={16} xl={16}>
-          <Carousel
-            ref={slidesCarouselRef}
-            afterChange={onSlideChange}
-            style={{ width: "100%", margin: "auto" }}
-          >
-            {slidesSortedBySpace &&
-              slidesSortedBySpace!.map((sl: Slide) => {
-                return (
-                  <div>
-                    <div
-                      style={{
-                        backgroundImage: `url(${sl!.url})`,
-                        backgroundPosition: "center",
-                        borderRadius: isMobile ? 0 : 16,
-                        backgroundSize: "cover",
-                        backgroundRepeat: "no-repeat",
-                        width: "100%",
-                        height: isMobile
-                          ? `${window.innerWidth}px`
-                          : Math.min(
-                              window.innerWidth * 0.58,
-                              maxDesktopWidth
-                            ) / 1.33333,
-                        border: "1px solid",
-                        borderColor: COLORS.borderColor,
-                        flex: "none",
-                      }}
-                    ></div>
-                  </div>
-                );
-              })}
-          </Carousel>
-        </Col>
-        <Col
-          xs={24}
-          sm={24}
-          md={8}
-          lg={8}
-          xl={8}
-          style={{
-            padding: 0,
-            border: isMobile ? 0 : "2px solid",
-            borderRadius: 16,
-            borderColor: COLORS.borderColor,
-          }}
-        >
-          {renderSpaceTabs()}
-        </Col>
-      </Row>
+
+      <Flex align="center" style={{ marginTop: 16, padding: 16 }} gap={16}>
+        <BorderOuterOutlined style={{ transform: "scale(1.4)" }} />
+        <Typography.Title level={3} style={{ margin: 0, marginTop: 0 }}>
+          Spaces Designed
+        </Typography.Title>
+      </Flex>
+      {renderSpaces()}
     </Flex>
   );
 };

@@ -13,3 +13,9 @@ export const COLORS = {
   textColorMedium: "#7A8C9B",
   textColorLight: "#AAA"
 };
+
+export const FONTS = {
+  primary: "Open Sauce Sans Medium",
+  regular: "Open Sauce Sans Regular"
+};
+
