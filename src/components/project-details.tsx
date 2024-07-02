@@ -209,7 +209,7 @@ const ProjectDetails: React.FC = () => {
               <Typography.Text
                 style={{ color: COLORS.textColorLight, fontSize: "70%" }}
               >
-                {fix.fixtureType?.fixtureType.toUpperCase()}
+                {fix.fixtureType ? fix.fixtureType?.fixtureType.toUpperCase() : ""}
               </Typography.Text>
               <Typography.Title level={5} style={{ margin: 0 }}>
                 {fix.designName || fix.fixtureType?.fixtureType}
