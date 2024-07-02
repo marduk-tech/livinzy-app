@@ -16,7 +16,7 @@ import {
   TabsProps,
   Typography,
 } from "antd";
-import { COLORS } from "../styles/colors";
+import { COLORS, FONTS } from "../styles/style-constants";
 import { Slide } from "../interfaces/Slide";
 import { Space } from "../interfaces/Space";
 import { useFetchFixturesByProject } from "../hooks/use-fixtures";
@@ -380,8 +380,8 @@ const ProjectDetailsV2: React.FC = () => {
               >
                 Designed By
               </Typography.Text>
-              <Typography.Title level={5} style={{ margin: 0 }}>
-                Harmonia Interiors
+              <Typography.Title level={5} style={{ margin: 0, marginTop: -4 }}>
+                {projectData.designerId.designerName}
               </Typography.Title>
             </Flex>
           </Flex>
@@ -407,8 +407,8 @@ const ProjectDetailsV2: React.FC = () => {
                 style={{
                   margin: 0,
                   lineHeight: "120%",
-                  fontSize: 20,
                   color: COLORS.textColorMedium,
+                  fontFamily: FONTS.regular
                 }}
               >
                 {projectData.oneLiner!}

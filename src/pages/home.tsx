@@ -1,6 +1,6 @@
 import React from "react";
 import { Col, Flex, Image, Input, Row, Typography } from "antd";
-import { COLORS } from "../styles/colors";
+import { COLORS } from "../styles/style-constants";
 import { maxDesktopWidth } from "../libs/constants";
 
 const pages = [
@@ -12,19 +12,19 @@ const pages = [
           marginTop: 128,
           padding: "0 24px",
           color: "white",
-          fontSize: 58
+          fontSize: 58,
         }}
       >
         Take the Next Best Decision For Your Home
       </Typography.Title>
     ),
     subtitle: <Input style={{ width: "300px", marginLeft: 24 }}></Input>,
-    image: ""
+    image: "",
   },
   {
     title: "",
     subtitle: "",
-    image: ""
+    image: "",
   },
   {
     title: (
@@ -32,20 +32,20 @@ const pages = [
         style={{
           marginTop: 128,
           padding: "0 24px",
-          fontSize: 58
+          fontSize: 58,
         }}
       >
         Unique Designs.Unique Designers
       </Typography.Title>
     ),
     subtitle: "",
-    image: ""
+    image: "",
   },
   {
     title: "Accurate Information.",
     subtitle: "",
-    image: ""
-  }
+    image: "",
+  },
 ];
 
 const Home: React.FC = () => {
@@ -63,7 +63,7 @@ const Home: React.FC = () => {
                 : "none",
               backgroundPosition: "center",
               backgroundSize: "cover",
-              backgroundRepeat: "no-repeat"
+              backgroundRepeat: "no-repeat",
             }}
           >
             <Flex
@@ -79,6 +79,38 @@ const Home: React.FC = () => {
       </Row>
     ));
   };
+
+  if (true) {
+    return (
+      <>
+      <Flex
+        style={{
+          height: 400,
+          width: 800,
+          backgroundColor: COLORS.primaryColor,
+        }}
+        align="center"
+        justify="center"
+      >
+        <Input style={{ height: 100, width: 600, borderRadius: 48, fontSize: 28, paddingLeft: 32 }}></Input>
+      </Flex>
+      <Flex>
+      kitchen with island table
+      <br/>
+
+spacious and earthly rooms<br/>
+
+Open concept living spaces<br/>
+
+Bright and colorful kids room<br/>
+
+Living room with large sofa set
+      </Flex>
+      </>
+
+    );
+  }
+
   return (
     <Flex vertical>
       {renderSlides()}
@@ -87,14 +119,14 @@ const Home: React.FC = () => {
           backgroundColor: COLORS.bgColor,
           position: "fixed",
           top: 16,
-          left: 15
+          left: 15,
         }}
       >
         <Image
           src="../../logo-name.png"
           style={{
             height: 35,
-            width: "auto"
+            width: "auto",
           }}
           preview={false}
         ></Image>
