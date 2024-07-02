@@ -119,7 +119,12 @@ const ProjectDetails: React.FC = () => {
                 </Typography.Title>
                 {space.cost && (
                   <Typography.Text
-                    style={{ margin: 0, fontSize: 20, marginTop: -4, color: COLORS.textColorMedium }}
+                    style={{
+                      margin: 0,
+                      fontSize: 20,
+                      marginTop: -4,
+                      color: COLORS.textColorMedium,
+                    }}
                   >
                     ₹{space.cost}
                   </Typography.Text>
@@ -186,9 +191,9 @@ const ProjectDetails: React.FC = () => {
       });
     });
 
-    const spaceFixtures = uniqueFixturesIds.map((f: string) =>
-      fixtures.find((fo: Fixture) => fo._id == f)
-    );
+    const spaceFixtures = uniqueFixturesIds
+      .map((f: string) => fixtures.find((fo: Fixture) => fo._id == f))
+      .filter((f: Fixture) => !!f);
 
     return (
       <Flex wrap="wrap" style={{ marginTop: 16 }} gap={16}>
@@ -209,7 +214,9 @@ const ProjectDetails: React.FC = () => {
               <Typography.Text
                 style={{ color: COLORS.textColorLight, fontSize: "70%" }}
               >
-                {fix.fixtureType ? fix.fixtureType?.fixtureType.toUpperCase() : ""}
+                {fix.fixtureType
+                  ? fix.fixtureType?.fixtureType.toUpperCase()
+                  : ""}
               </Typography.Text>
               <Typography.Title level={5} style={{ margin: 0 }}>
                 {fix.designName || fix.fixtureType?.fixtureType}
@@ -330,10 +337,32 @@ const ProjectDetails: React.FC = () => {
       {/* The header bar including name, one liner, tags */}
 
       <Carousel
+        autoplay={true}
         ref={slidesCarouselRef}
         afterChange={onSlideChange}
         style={{ width: "100%", margin: "auto" }}
       >
+        {projectData?.previewImageUrl && (
+          <div>
+          <div
+            style={{
+              backgroundImage: `url(${projectData.previewImageUrl})`,
+              backgroundPosition: "center",
+              borderRadius: isMobile ? 0 : 16,
+              backgroundSize: "cover",
+              backgroundRepeat: "no-repeat",
+              width: "100%",
+              height: isMobile
+                ? `${window.innerWidth}px`
+                : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
+                  1.33333,
+              border: "1px solid",
+              borderColor: COLORS.borderColor,
+              flex: "none",
+            }}
+          ></div>
+        </div>
+        )}
         {slidesSortedBySpace &&
           slidesSortedBySpace!.map((sl: Slide) => {
             return (
@@ -408,7 +437,7 @@ const ProjectDetails: React.FC = () => {
                   margin: 0,
                   lineHeight: "120%",
                   color: COLORS.textColorMedium,
-                  fontFamily: FONTS.regular
+                  fontFamily: FONTS.regular,
                 }}
               >
                 {projectData.oneLiner!}
