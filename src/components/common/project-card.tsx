@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { HomeMeta } from "../../interfaces/Meta";
 import { Project } from "../../interfaces/Project";
 import { useDevice } from "../../libs/device";
-import { COLORS } from "../../styles/style-constants";
+import { COLORS, FONTS } from "../../styles/style-constants";
 
 interface ProjectCardProps {
   project: Project;
@@ -22,6 +22,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       style={{
         width: "100%",
         cursor: "pointer",
+         backgroundColor: "white",
+         boxShadow: "0 0 4px #ddd",
+         borderRadius: 16,
+         padding: 8
       }}
       onClick={() => {
         navigate(`/project/${project._id}`);
@@ -30,8 +34,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       <div
         style={{
           width: "100%",
-          borderRadius: 15,
-          height: 300,
+          borderRadius: 16,
+          height: 225,
+          border: "1px solid",
+          borderColor: COLORS.borderColor,
 
           backgroundImage: `url(${
             project.previewImageUrl || "../../img-plchlder.png"
@@ -51,7 +57,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
         </Typography.Title>
 
         <Flex
-          style={{ marginTop: 5 }}
           gap={7}
           color={COLORS.textColorLight}
           align="center"
@@ -86,7 +91,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
 function DescText({ text }: { text: string }) {
   return (
     <Typography.Text
-      style={{ fontSize: "14px", opacity: "80%" }}
+      style={{ fontSize: "14px", color: COLORS.textColorMedium, fontFamily: FONTS.regular }}
       color={COLORS.textColorLight}
     >
       {text}

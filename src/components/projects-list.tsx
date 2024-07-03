@@ -44,7 +44,7 @@ const ProjectsList: React.FC = () => {
       >
         <Row gutter={[35, 30]} style={{ width: "1200px" }}>
           {projects.data.map((project: Project) => (
-            <Col key={project._id} xs={24} md={12} lg={8}>
+            <Col key={project._id} xs={24} md={12} lg={6}>
               <ProjectCard
                 project={project}
                 homeMeta={homeMeta.data}

@@ -55,7 +55,6 @@ const ProjectDetails: React.FC = () => {
     console.log(currentSlide);
     const slideCurrent = slidesSortedBySpace![currentSlide];
     setCurrentSlide(slideCurrent);
-    setActiveSpace(slideCurrent.spaces![0]);
   };
 
   useEffect(() => {
@@ -104,6 +103,7 @@ const ProjectDetails: React.FC = () => {
             borderRadius: 16,
             border: "2px solid",
             borderColor: COLORS.borderColor,
+            backgroundColor: "white",
           }}
         >
           <Flex vertical gap={16}>
@@ -112,6 +112,7 @@ const ProjectDetails: React.FC = () => {
                 preview={false}
                 src={space.spaceType.icon || "../../gen-room.png"}
                 width={60}
+                style={{ filter: COLORS.textColorDarkFilter }}
               />
               <Flex vertical>
                 <Typography.Title level={4} style={{ margin: 0 }}>
@@ -207,6 +208,7 @@ const ProjectDetails: React.FC = () => {
                 borderBottomColor: COLORS.borderColor,
               }}
               onClick={() => {
+                setActiveSpace(spaceId);
                 setFixtureSelected(fix);
               }}
               vertical
@@ -233,7 +235,7 @@ const ProjectDetails: React.FC = () => {
           }}
         >
           {fixtureSelected && (
-            <Flex vertical>
+            <Flex vertical align="flex-start" justify="flex-start">
               <Flex align="center">
                 <Typography.Title style={{ margin: 0 }} level={3}>
                   {fixtureSelected?.designName ||
@@ -243,9 +245,15 @@ const ProjectDetails: React.FC = () => {
               <Flex
                 gap={8}
                 style={{
-                  padding: "4px 0",
+                  padding: "4px 12px",
+                  marginTop: 16,
+                  borderRadius: 16,
+                  border: "1px solid",
+                  borderColor: COLORS.borderColor,
                   marginBottom: 16,
                 }}
+                wrap="wrap"
+                align="flex-end"
               >
                 <Image
                   height={28}
@@ -253,9 +261,10 @@ const ProjectDetails: React.FC = () => {
                     spaces.find((s: Space) => s._id == activeSpace).spaceType
                       .icon
                   }
+                  style={{ filter: COLORS.textColorMediumFilter }}
                   preview={false}
                 ></Image>
-                <Typography.Text>
+                <Typography.Text style={{ color: COLORS.textColorMedium }}>
                   {spaces.find((s: Space) => s._id == activeSpace).name}
                 </Typography.Text>
               </Flex>
@@ -332,6 +341,7 @@ const ProjectDetails: React.FC = () => {
         maxWidth: isMobile ? "100%" : maxDesktopWidth,
         width: "100%",
         margin: "auto",
+        backgroundColor: COLORS.bgColor,
       }}
     >
       {/* The header bar including name, one liner, tags */}
@@ -344,24 +354,23 @@ const ProjectDetails: React.FC = () => {
       >
         {projectData?.previewImageUrl && (
           <div>
-          <div
-            style={{
-              backgroundImage: `url(${projectData.previewImageUrl})`,
-              backgroundPosition: "center",
-              borderRadius: isMobile ? 0 : 16,
-              backgroundSize: "cover",
-              backgroundRepeat: "no-repeat",
-              width: "100%",
-              height: isMobile
-                ? `${window.innerWidth}px`
-                : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
-                  1.33333,
-              border: "1px solid",
-              borderColor: COLORS.borderColor,
-              flex: "none",
-            }}
-          ></div>
-        </div>
+            <div
+              style={{
+                backgroundImage: `url(${projectData.previewImageUrl})`,
+                backgroundPosition: "center",
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                width: "100%",
+                height: isMobile
+                  ? `${window.innerWidth}px`
+                  : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
+                    1.33333,
+                border: "1px solid",
+                borderColor: COLORS.borderColor,
+                flex: "none",
+              }}
+            ></div>
+          </div>
         )}
         {slidesSortedBySpace &&
           slidesSortedBySpace!.map((sl: Slide) => {
@@ -371,7 +380,6 @@ const ProjectDetails: React.FC = () => {
                   style={{
                     backgroundImage: `url(${sl!.url})`,
                     backgroundPosition: "center",
-                    borderRadius: isMobile ? 0 : 16,
                     backgroundSize: "cover",
                     backgroundRepeat: "no-repeat",
                     width: "100%",
@@ -428,7 +436,7 @@ const ProjectDetails: React.FC = () => {
             gap={8}
           >
             <Flex gap={4} style={{ color: COLORS.textColorDark }}>
-              {projectData.homeDetails?.homeType.homeType!} ·
+              {projectData.homeDetails?.homeType.homeType!} · {" "}
               {projectData.homeDetails?.size} sqft
             </Flex>
             {projectData.oneLiner && (
@@ -448,8 +456,13 @@ const ProjectDetails: React.FC = () => {
       </Flex>
 
       <Flex align="center" style={{ marginTop: 16, padding: 16 }} gap={16}>
-        <BorderOuterOutlined style={{ transform: "scale(1.4)" }} />
-        <Typography.Title level={3} style={{ margin: 0, marginTop: 0 }}>
+        <BorderOuterOutlined
+          style={{ transform: "scale(1.4)", color: COLORS.textColorMedium }}
+        />
+        <Typography.Title
+          level={3}
+          style={{ margin: 0, marginTop: 0, color: COLORS.textColorMedium }}
+        >
           Spaces Designed
         </Typography.Title>
       </Flex>
