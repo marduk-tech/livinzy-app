@@ -7,12 +7,14 @@ import { getHomeMeta } from "../hooks/use-meta";
 import { useFetchProjects } from "../hooks/use-projects";
 import { Project } from "../interfaces/Project";
 
+import { useDevice } from "../libs/device";
 import { ProjectCard } from "./common/project-card";
 import { Loader } from "./loader";
 
 const ProjectsList: React.FC = () => {
-  const projects = useFetchProjects();
+  const { isMobile } = useDevice();
 
+  const projects = useFetchProjects();
   const homeMeta = getHomeMeta();
 
   if (projects.isLoading || homeMeta.isLoading) {
@@ -37,7 +39,7 @@ const ProjectsList: React.FC = () => {
         style={{
           width: "100%",
           marginTop: 16,
-          padding: "0px 40px",
+          padding: `0px ${isMobile ? "20px" : "40px"}`,
         }}
       >
         <Row gutter={[35, 30]} style={{ width: "1200px" }}>
