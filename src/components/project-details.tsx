@@ -55,7 +55,6 @@ const ProjectDetails: React.FC = () => {
     console.log(currentSlide);
     const slideCurrent = slidesSortedBySpace![currentSlide];
     setCurrentSlide(slideCurrent);
-    setActiveSpace(slideCurrent.spaces![0]);
   };
 
   useEffect(() => {
@@ -90,10 +89,7 @@ const ProjectDetails: React.FC = () => {
    * Displays all spaces in a tabbed layout
    * @returns
    */
-  const renderSpaces = () => {
-    const validSpaces = filterZombieSpaces(spaces).sort(
-      (s1: Space, s2: Space) => s2._id!.localeCompare(s1._id!)
-    );
+  const renderSpaces = (validSpaces: Space[]) => {
     return validSpaces.map((space: Space) => {
       return (
         <Flex
@@ -104,6 +100,7 @@ const ProjectDetails: React.FC = () => {
             borderRadius: 16,
             border: "2px solid",
             borderColor: COLORS.borderColor,
+            backgroundColor: "white",
           }}
         >
           <Flex vertical gap={16}>
@@ -112,6 +109,7 @@ const ProjectDetails: React.FC = () => {
                 preview={false}
                 src={space.spaceType.icon || "../../gen-room.png"}
                 width={60}
+                style={{ filter: COLORS.textColorDarkFilter }}
               />
               <Flex vertical>
                 <Typography.Title level={4} style={{ margin: 0 }}>
@@ -121,7 +119,8 @@ const ProjectDetails: React.FC = () => {
                   <Typography.Text
                     style={{
                       margin: 0,
-                      fontSize: 20,
+                      fontFamily: FONTS.regular,
+                      fontSize: 18,
                       marginTop: -4,
                       color: COLORS.textColorMedium,
                     }}
@@ -207,6 +206,7 @@ const ProjectDetails: React.FC = () => {
                 borderBottomColor: COLORS.borderColor,
               }}
               onClick={() => {
+                setActiveSpace(spaceId);
                 setFixtureSelected(fix);
               }}
               vertical
@@ -233,7 +233,7 @@ const ProjectDetails: React.FC = () => {
           }}
         >
           {fixtureSelected && (
-            <Flex vertical>
+            <Flex vertical style={{ width: "100%" }}>
               <Flex align="center">
                 <Typography.Title style={{ margin: 0 }} level={3}>
                   {fixtureSelected?.designName ||
@@ -243,9 +243,16 @@ const ProjectDetails: React.FC = () => {
               <Flex
                 gap={8}
                 style={{
-                  padding: "4px 0",
+                  padding: "4px 12px",
+                  alignSelf: "flex-start",
+                  marginTop: 16,
+                  borderRadius: 16,
+                  border: "1px solid",
+                  borderColor: COLORS.borderColor,
                   marginBottom: 16,
                 }}
+                wrap="wrap"
+                align="flex-end"
               >
                 <Image
                   height={28}
@@ -253,33 +260,32 @@ const ProjectDetails: React.FC = () => {
                     spaces.find((s: Space) => s._id == activeSpace).spaceType
                       .icon
                   }
+                  style={{ filter: COLORS.textColorMediumFilter }}
                   preview={false}
                 ></Image>
-                <Typography.Text>
+                <Typography.Text style={{ color: COLORS.textColorMedium }}>
                   {spaces.find((s: Space) => s._id == activeSpace).name}
                 </Typography.Text>
               </Flex>
-              <Carousel
-                autoplay={true}
-                autoplaySpeed={1000}
-                style={{ borderRadius: 16 }}
-              >
+              <Carousel style={{ borderRadius: 16 }}>
                 {slides!
                   .filter((s: Slide) =>
                     s.fixtures!.includes(fixtureSelected!._id!)
                   )
                   .map((s: Slide) => {
-                    return fixtureSelected.imageBounds ? (
+                    return fixtureSelected.imageBounds && false ? (
                       <ZoomedImage
                         imageUrl={s.url}
                         imgHeight={
-                          fixtureSelected.imageBounds?.imageSize.height!
+                          fixtureSelected!.imageBounds?.imageSize.height!
                         }
-                        imgWidth={fixtureSelected.imageBounds?.imageSize.width}
-                        boxStartX={fixtureSelected.imageBounds?.startPoint.x}
-                        boxStartY={fixtureSelected.imageBounds?.startPoint.y}
-                        boxEndX={fixtureSelected.imageBounds?.endPoint.y}
-                        boxEndY={fixtureSelected.imageBounds?.endPoint.y}
+                        imgWidth={
+                          fixtureSelected!.imageBounds?.imageSize.width!
+                        }
+                        boxStartX={fixtureSelected!.imageBounds?.startPoint.x!}
+                        boxStartY={fixtureSelected!.imageBounds?.startPoint.y!}
+                        boxEndX={fixtureSelected!.imageBounds?.endPoint.y!}
+                        boxEndY={fixtureSelected!.imageBounds?.endPoint.y!}
                         divWidth={
                           isMobile ? window.innerWidth : dimensions.width
                         }
@@ -305,10 +311,10 @@ const ProjectDetails: React.FC = () => {
                     );
                   })}
               </Carousel>
-              <Typography.Text style={{ marginTop: 16, fontSize: 20 }}>
+              {/* <Typography.Text style={{ marginTop: 16, fontSize: 20 }}>
                 {fixtureSelected?.description ||
                   fixtureSelected!.fixtureType!.description}
-              </Typography.Text>
+              </Typography.Text> */}
             </Flex>
           )}
         </Modal>
@@ -325,6 +331,10 @@ const ProjectDetails: React.FC = () => {
     return "Loading..";
   }
 
+  const validSpaces = filterZombieSpaces(spaces).sort((s1: Space, s2: Space) =>
+    s2._id!.localeCompare(s1._id!)
+  );
+
   return (
     <Flex
       vertical
@@ -332,6 +342,7 @@ const ProjectDetails: React.FC = () => {
         maxWidth: isMobile ? "100%" : maxDesktopWidth,
         width: "100%",
         margin: "auto",
+        backgroundColor: COLORS.bgColor,
       }}
     >
       {/* The header bar including name, one liner, tags */}
@@ -344,24 +355,23 @@ const ProjectDetails: React.FC = () => {
       >
         {projectData?.previewImageUrl && (
           <div>
-          <div
-            style={{
-              backgroundImage: `url(${projectData.previewImageUrl})`,
-              backgroundPosition: "center",
-              borderRadius: isMobile ? 0 : 16,
-              backgroundSize: "cover",
-              backgroundRepeat: "no-repeat",
-              width: "100%",
-              height: isMobile
-                ? `${window.innerWidth}px`
-                : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
-                  1.33333,
-              border: "1px solid",
-              borderColor: COLORS.borderColor,
-              flex: "none",
-            }}
-          ></div>
-        </div>
+            <div
+              style={{
+                backgroundImage: `url(${projectData.previewImageUrl})`,
+                backgroundPosition: "center",
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                width: "100%",
+                height: isMobile
+                  ? `${window.innerWidth}px`
+                  : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
+                    1.33333,
+                border: "1px solid",
+                borderColor: COLORS.borderColor,
+                flex: "none",
+              }}
+            ></div>
+          </div>
         )}
         {slidesSortedBySpace &&
           slidesSortedBySpace!.map((sl: Slide) => {
@@ -371,7 +381,6 @@ const ProjectDetails: React.FC = () => {
                   style={{
                     backgroundImage: `url(${sl!.url})`,
                     backgroundPosition: "center",
-                    borderRadius: isMobile ? 0 : 16,
                     backgroundSize: "cover",
                     backgroundRepeat: "no-repeat",
                     width: "100%",
@@ -428,7 +437,7 @@ const ProjectDetails: React.FC = () => {
             gap={8}
           >
             <Flex gap={4} style={{ color: COLORS.textColorDark }}>
-              {projectData.homeDetails?.homeType.homeType!} ·
+              {projectData.homeDetails?.homeType.homeType!} ·{" "}
               {projectData.homeDetails?.size} sqft
             </Flex>
             {projectData.oneLiner && (
@@ -443,17 +452,46 @@ const ProjectDetails: React.FC = () => {
                 {projectData.oneLiner!}
               </Typography.Text>
             )}
+            {/* <Row >
+              {validSpaces.map((space: Space) => {
+                return (
+                  <Col span={12}>
+                    <Flex vertical align="center" style={}>
+                      <Image
+                        width={80}
+                        height={80}
+                        src={space.spaceType.icon}
+                        style={{ filter: COLORS.textColorMediumFilter }}
+                      ></Image>
+                      <Typography.Text
+                        style={{
+                          color: COLORS.textColorMedium,
+                          fontSize: "80%",
+                        }}
+                      >
+                        {space.name}
+                      </Typography.Text>
+                    </Flex>
+                  </Col>
+                );
+              })}
+            </Row> */}
           </Flex>
         </Flex>
       </Flex>
 
       <Flex align="center" style={{ marginTop: 16, padding: 16 }} gap={16}>
-        <BorderOuterOutlined style={{ transform: "scale(1.4)" }} />
-        <Typography.Title level={3} style={{ margin: 0, marginTop: 0 }}>
+        <BorderOuterOutlined
+          style={{ transform: "scale(1.4)", color: COLORS.textColorMedium }}
+        />
+        <Typography.Title
+          level={4}
+          style={{ margin: 0, marginTop: 0, color: COLORS.textColorMedium }}
+        >
           Spaces Designed
         </Typography.Title>
       </Flex>
-      {renderSpaces()}
+      {renderSpaces(validSpaces)}
     </Flex>
   );
 };

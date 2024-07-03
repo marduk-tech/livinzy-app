@@ -1,80 +1,63 @@
 // ProjectsList.tsx
 
+import { Col, Flex, Row } from "antd";
 import React from "react";
+
+import { getHomeMeta } from "../hooks/use-meta";
 import { useFetchProjects } from "../hooks/use-projects";
 import { Project } from "../interfaces/Project";
-import { Flex } from "antd";
-import { useNavigate } from "react-router-dom";
+
 import { useDevice } from "../libs/device";
+import { ProjectCard } from "./common/project-card";
+import { Loader } from "./loader";
 
 const ProjectsList: React.FC = () => {
-  const navigate = useNavigate();
   const { isMobile } = useDevice();
 
-  const { data: projects, isLoading, isError, error } = useFetchProjects();
+  const projects = useFetchProjects();
+  const homeMeta = getHomeMeta();
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (projects.isLoading || homeMeta.isLoading) {
+    return <Loader />;
   }
 
-  if (isError) {
-    return <div>Error: {(error as Error).message}</div>;
+  if (projects.isError || homeMeta.isError) {
+    return (
+      <div>
+        Error:{" "}
+        {projects.isError
+          ? (projects.error as Error).message
+          : (homeMeta.error as Error).message}
+      </div>
+    );
   }
 
-  return (
-    <Flex
-      justify="center"
-      style={{ width: "100%", marginTop: 16 }}
-      wrap="wrap"
-      gap={16}
-    >
-      {projects?.map((project: Project) => (
-        <Flex
-          vertical
-          key={project._id}
-          style={{
-            width: isMobile ? "100%" : 350
-          }}
-          onClick={() => {
-            navigate(`/project/${project._id}`);
-          }}
-        >
-          <Flex
-            style={{
-              cursor: "pointer",
-              width: "100%",
-              borderRadius: 8,
-              height: 250,
-              backgroundImage: `url(${
-                project.previewImageUrl || "../../img-plchlder.png"
-              })`,
-              backgroundPosition: "center",
-              backgroundSize: "cover",
-              backgroundRepeat: "no-repeat",
-              position: "relative"
-            }}
-          >
-            <Flex
-              style={{
-                position: "absolute",
-                padding: 8,
-                borderBottomRightRadius: 8,
-                borderBottomLeftRadius: 8,
-                fontWeight: "bold",
-                bottom: 0,
-                width: "100%",
-                backgroundColor: "white"
-              }}
-            >
-              {project.name}
-            </Flex>
-          </Flex>
+  if (projects.data && homeMeta.data) {
+    return (
+      <Flex
+        justify="center"
+        style={{
+          width: "100%",
+          marginTop: 16,
+          padding: `0px ${isMobile ? "20px" : "40px"}`,
+        }}
+      >
+        <Row gutter={[35, 30]} style={{ width: "1200px" }}>
+          {projects.data.map((project: Project) => (
+            <Col key={project._id} xs={24} md={12} lg={6}>
+              <ProjectCard
+                project={project}
+                homeMeta={homeMeta.data}
+                key={project._id}
+              />
+            </Col>
+          ))}
+        </Row>
+      </Flex>
+    );
+  }
 
-          <br />
-        </Flex>
-      ))}
-    </Flex>
-  );
+  return null;
 };
 
 export default ProjectsList;

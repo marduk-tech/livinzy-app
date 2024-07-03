@@ -8,7 +8,7 @@ export const antTheme: ThemeConfig = {
     colorTextBase: COLORS.textColorDark,
     controlHeight: 50,
     fontFamily: FONTS.primary,
-    fontSize: 15,
+    fontSize: 16,
   },
   components: {
     Tabs: {
