@@ -4,12 +4,14 @@ import { useFetchSlidesByProject } from "../hooks/use-slides";
 import { useFetchSpacesByProject } from "../hooks/use-spaces";
 import { useFetchProject } from "../hooks/use-projects";
 import {
+  Button,
   Carousel,
   Col,
   Drawer,
   Flex,
   Image,
   Modal,
+  Popover,
   Row,
   Segmented,
   Tabs,
@@ -26,6 +28,7 @@ import { BorderOuterOutlined } from "@ant-design/icons";
 import ZoomedImage from "./common/zoomed-img";
 import useParentDimensions from "../hooks/use-parent-dimension";
 import { maxDesktopWidth } from "../libs/constants";
+import { DesignerNoteIcon } from "../libs/icons";
 
 const ProjectDetails: React.FC = () => {
   const { projectId } = useParams();
@@ -103,33 +106,50 @@ const ProjectDetails: React.FC = () => {
             backgroundColor: "white",
           }}
         >
-          <Flex vertical gap={16}>
-            <Flex align="center" gap={16}>
-              <Image
-                preview={false}
-                src={space.spaceType.icon || "../../gen-room.png"}
-                width={60}
-                style={{ filter: COLORS.textColorDarkFilter }}
-              />
-              <Flex vertical>
-                <Typography.Title level={4} style={{ margin: 0 }}>
-                  {space.name}
-                </Typography.Title>
-                {space.cost && (
-                  <Typography.Text
-                    style={{
-                      margin: 0,
-                      fontFamily: FONTS.regular,
-                      fontSize: 18,
-                      marginTop: -4,
-                      color: COLORS.textColorMedium,
-                    }}
-                  >
-                    ₹{space.cost}
-                  </Typography.Text>
-                )}
-              </Flex>
+          <Flex gap={16} align="flex-start">
+            <Image
+              preview={false}
+              src={space.spaceType.icon || "../../gen-room.png"}
+              width={60}
+              style={{ filter: COLORS.textColorDarkFilter }}
+            />
+            <Flex vertical>
+              <Typography.Title level={4} style={{ margin: 0 }}>
+                {space.name}
+              </Typography.Title>
+              {space.cost && (
+                <Typography.Text
+                  style={{
+                    margin: 0,
+                    fontFamily: FONTS.regular,
+                    fontSize: 18,
+                    marginTop: -4,
+                    color: COLORS.textColorMedium,
+                  }}
+                >
+                  ₹{space.cost}
+                </Typography.Text>
+              )}
             </Flex>
+            {space.oneLiner && (
+              <Flex style={{ marginLeft: "auto", marginTop: 4 }}>
+                <Popover
+                  content={
+                    <Flex vertical gap={8}>
+                      <DesignerNoteIcon></DesignerNoteIcon>
+                      <Typography.Text>{space.oneLiner}</Typography.Text>
+                    </Flex>
+                  }
+                  title=""
+                >
+                  <Button
+                    type="link"
+                    style={{ color: COLORS.primaryColor }}
+                    icon={<DesignerNoteIcon></DesignerNoteIcon>}
+                  ></Button>
+                </Popover>
+              </Flex>
+            )}
 
             {/* <InfoCircleOutlined
                   style={{ color: "white" }}
@@ -311,6 +331,14 @@ const ProjectDetails: React.FC = () => {
                     );
                   })}
               </Carousel>
+              {fixtureSelected.description && (
+                <Flex vertical style={{ marginTop: 24 }}>
+                  <DesignerNoteIcon></DesignerNoteIcon>
+                  <Typography.Text style={{color: COLORS.textColorMedium}}>
+                    {fixtureSelected.description}
+                  </Typography.Text>
+                </Flex>
+              )}
               {/* <Typography.Text style={{ marginTop: 16, fontSize: 20 }}>
                 {fixtureSelected?.description ||
                   fixtureSelected!.fixtureType!.description}
@@ -431,8 +459,8 @@ const ProjectDetails: React.FC = () => {
               borderTop: "1px solid",
               marginTop: 16,
               padding: "16px 0",
-              borderBottomColor: COLORS.borderColor,
-              borderTopColor: COLORS.borderColor,
+              borderBottomColor: COLORS.borderColorDark,
+              borderTopColor: COLORS.borderColorDark,
             }}
             gap={8}
           >
