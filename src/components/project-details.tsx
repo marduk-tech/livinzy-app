@@ -235,7 +235,7 @@ const ProjectDetails: React.FC = () => {
           }}
         >
           {fixtureSelected && (
-            <Flex vertical align="flex-start" justify="flex-start">
+            <Flex vertical style={{width: "100%"}}>
               <Flex align="center">
                 <Typography.Title style={{ margin: 0 }} level={3}>
                   {fixtureSelected?.designName ||
@@ -246,6 +246,7 @@ const ProjectDetails: React.FC = () => {
                 gap={8}
                 style={{
                   padding: "4px 12px",
+                  alignSelf: "flex-start",
                   marginTop: 16,
                   borderRadius: 16,
                   border: "1px solid",
@@ -269,26 +270,24 @@ const ProjectDetails: React.FC = () => {
                 </Typography.Text>
               </Flex>
               <Carousel
-                autoplay={true}
-                autoplaySpeed={1000}
-                style={{ borderRadius: 16 }}
+                style={{ borderRadius: 16}}
               >
                 {slides!
                   .filter((s: Slide) =>
                     s.fixtures!.includes(fixtureSelected!._id!)
                   )
                   .map((s: Slide) => {
-                    return fixtureSelected.imageBounds ? (
+                    return fixtureSelected.imageBounds && false ? (
                       <ZoomedImage
                         imageUrl={s.url}
                         imgHeight={
-                          fixtureSelected.imageBounds?.imageSize.height!
+                          fixtureSelected!.imageBounds?.imageSize.height!
                         }
-                        imgWidth={fixtureSelected.imageBounds?.imageSize.width}
-                        boxStartX={fixtureSelected.imageBounds?.startPoint.x}
-                        boxStartY={fixtureSelected.imageBounds?.startPoint.y}
-                        boxEndX={fixtureSelected.imageBounds?.endPoint.y}
-                        boxEndY={fixtureSelected.imageBounds?.endPoint.y}
+                        imgWidth={fixtureSelected!.imageBounds?.imageSize.width!}
+                        boxStartX={fixtureSelected!.imageBounds?.startPoint.x!}
+                        boxStartY={fixtureSelected!.imageBounds?.startPoint.y!}
+                        boxEndX={fixtureSelected!.imageBounds?.endPoint.y!}
+                        boxEndY={fixtureSelected!.imageBounds?.endPoint.y!}
                         divWidth={
                           isMobile ? window.innerWidth : dimensions.width
                         }
@@ -314,10 +313,10 @@ const ProjectDetails: React.FC = () => {
                     );
                   })}
               </Carousel>
-              <Typography.Text style={{ marginTop: 16, fontSize: 20 }}>
+              {/* <Typography.Text style={{ marginTop: 16, fontSize: 20 }}>
                 {fixtureSelected?.description ||
                   fixtureSelected!.fixtureType!.description}
-              </Typography.Text>
+              </Typography.Text> */}
             </Flex>
           )}
         </Modal>
