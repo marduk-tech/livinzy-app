@@ -14,7 +14,7 @@ export const COLORS = {
   textColorLight: "#AAA",
   textColorDarkFilter: "invert(7%) sepia(39%) saturate(1473%) hue-rotate(173deg) brightness(93%) contrast(98%)",
   primaryColorFilter: "invert(83%) sepia(21%) saturate(6924%) hue-rotate(155deg) brightness(96%) contrast(98%)",
-  textColorMediumFilter: "invert(58%) sepia(8%) saturate(746%) hue-rotate(165deg) brightness(91%) contrast(95%)"
+  textColorMediumFilter: "invert(31%) sepia(52%) saturate(227%) hue-rotate(164deg) brightness(90%) contrast(87%)"
 };
 
 export const FONTS = {

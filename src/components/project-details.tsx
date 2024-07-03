@@ -89,10 +89,7 @@ const ProjectDetails: React.FC = () => {
    * Displays all spaces in a tabbed layout
    * @returns
    */
-  const renderSpaces = () => {
-    const validSpaces = filterZombieSpaces(spaces).sort(
-      (s1: Space, s2: Space) => s2._id!.localeCompare(s1._id!)
-    );
+  const renderSpaces = (validSpaces: Space[]) => {
     return validSpaces.map((space: Space) => {
       return (
         <Flex
@@ -122,7 +119,8 @@ const ProjectDetails: React.FC = () => {
                   <Typography.Text
                     style={{
                       margin: 0,
-                      fontSize: 20,
+                      fontFamily: FONTS.regular,
+                      fontSize: 18,
                       marginTop: -4,
                       color: COLORS.textColorMedium,
                     }}
@@ -235,7 +233,7 @@ const ProjectDetails: React.FC = () => {
           }}
         >
           {fixtureSelected && (
-            <Flex vertical style={{width: "100%"}}>
+            <Flex vertical style={{ width: "100%" }}>
               <Flex align="center">
                 <Typography.Title style={{ margin: 0 }} level={3}>
                   {fixtureSelected?.designName ||
@@ -269,9 +267,7 @@ const ProjectDetails: React.FC = () => {
                   {spaces.find((s: Space) => s._id == activeSpace).name}
                 </Typography.Text>
               </Flex>
-              <Carousel
-                style={{ borderRadius: 16}}
-              >
+              <Carousel style={{ borderRadius: 16 }}>
                 {slides!
                   .filter((s: Slide) =>
                     s.fixtures!.includes(fixtureSelected!._id!)
@@ -283,7 +279,9 @@ const ProjectDetails: React.FC = () => {
                         imgHeight={
                           fixtureSelected!.imageBounds?.imageSize.height!
                         }
-                        imgWidth={fixtureSelected!.imageBounds?.imageSize.width!}
+                        imgWidth={
+                          fixtureSelected!.imageBounds?.imageSize.width!
+                        }
                         boxStartX={fixtureSelected!.imageBounds?.startPoint.x!}
                         boxStartY={fixtureSelected!.imageBounds?.startPoint.y!}
                         boxEndX={fixtureSelected!.imageBounds?.endPoint.y!}
@@ -332,6 +330,10 @@ const ProjectDetails: React.FC = () => {
   ) {
     return "Loading..";
   }
+
+  const validSpaces = filterZombieSpaces(spaces).sort((s1: Space, s2: Space) =>
+    s2._id!.localeCompare(s1._id!)
+  );
 
   return (
     <Flex
@@ -435,7 +437,7 @@ const ProjectDetails: React.FC = () => {
             gap={8}
           >
             <Flex gap={4} style={{ color: COLORS.textColorDark }}>
-              {projectData.homeDetails?.homeType.homeType!} · {" "}
+              {projectData.homeDetails?.homeType.homeType!} ·{" "}
               {projectData.homeDetails?.size} sqft
             </Flex>
             {projectData.oneLiner && (
@@ -450,6 +452,30 @@ const ProjectDetails: React.FC = () => {
                 {projectData.oneLiner!}
               </Typography.Text>
             )}
+            {/* <Row >
+              {validSpaces.map((space: Space) => {
+                return (
+                  <Col span={12}>
+                    <Flex vertical align="center" style={}>
+                      <Image
+                        width={80}
+                        height={80}
+                        src={space.spaceType.icon}
+                        style={{ filter: COLORS.textColorMediumFilter }}
+                      ></Image>
+                      <Typography.Text
+                        style={{
+                          color: COLORS.textColorMedium,
+                          fontSize: "80%",
+                        }}
+                      >
+                        {space.name}
+                      </Typography.Text>
+                    </Flex>
+                  </Col>
+                );
+              })}
+            </Row> */}
           </Flex>
         </Flex>
       </Flex>
@@ -459,13 +485,13 @@ const ProjectDetails: React.FC = () => {
           style={{ transform: "scale(1.4)", color: COLORS.textColorMedium }}
         />
         <Typography.Title
-          level={3}
+          level={4}
           style={{ margin: 0, marginTop: 0, color: COLORS.textColorMedium }}
         >
           Spaces Designed
         </Typography.Title>
       </Flex>
-      {renderSpaces()}
+      {renderSpaces(validSpaces)}
     </Flex>
   );
 };
