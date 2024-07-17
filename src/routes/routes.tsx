@@ -4,10 +4,12 @@ import { Route, Routes } from "react-router-dom";
 import { DashboardLayout } from "../layouts/dashboard-layout";
 
 // Pages
+import { AuthenticatedRoute } from "../components/authenticated-route";
 import { LoginPage } from "../pages/auth/login";
 import Home from "../pages/home";
-import Projects from "../pages/projects";
+import { ProfilePage } from "../pages/profile";
 import Project from "../pages/project";
+import Projects from "../pages/projects";
 
 export const Router = () => {
   return (
@@ -15,6 +17,10 @@ export const Router = () => {
       <Route element={<DashboardLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/projects" element={<Projects />} />
+      </Route>
+
+      <Route element={<AuthenticatedRoute />}>
+        <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
       <Route path="/auth/login" element={<LoginPage />} />
