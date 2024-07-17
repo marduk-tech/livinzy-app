@@ -8,7 +8,8 @@ import { AuthenticatedRoute } from "../components/authenticated-route";
 import { LoginPage } from "../pages/auth/login";
 import Home from "../pages/home";
 import { ProfilePage } from "../pages/profile";
-import Project from "../pages/project";
+import ProjectDetailsPage from "../pages/project/project-details";
+import { ProjectImagesPage } from "../pages/project/project-images";
 import Projects from "../pages/projects";
 
 export const Router = () => {
@@ -25,7 +26,11 @@ export const Router = () => {
 
       <Route path="/auth/login" element={<LoginPage />} />
 
-      <Route path="/project/:projectId" element={<Project />} />
+      <Route path="/project/:projectId" element={<ProjectDetailsPage />} />
+      <Route
+        path="/project/:projectId/images"
+        element={<ProjectImagesPage />}
+      />
 
       <Route path="/*" element={<div>404</div>} />
     </Routes>

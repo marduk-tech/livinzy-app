@@ -1,8 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import { useFetchSlidesByProject } from "../hooks/use-slides";
-import { useFetchSpacesByProject } from "../hooks/use-spaces";
-import { useFetchProject } from "../hooks/use-projects";
+import { ArrowRightOutlined, BorderOuterOutlined } from "@ant-design/icons";
 import {
   Button,
   Carousel,
@@ -18,17 +14,21 @@ import {
   TabsProps,
   Typography,
 } from "antd";
-import { COLORS, FONTS } from "../styles/style-constants";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useFetchFixturesByProject } from "../hooks/use-fixtures";
+import useParentDimensions from "../hooks/use-parent-dimension";
+import { useFetchProject } from "../hooks/use-projects";
+import { useFetchSlidesByProject } from "../hooks/use-slides";
+import { useFetchSpacesByProject } from "../hooks/use-spaces";
+import { Fixture } from "../interfaces/Fixture";
 import { Slide } from "../interfaces/Slide";
 import { Space } from "../interfaces/Space";
-import { useFetchFixturesByProject } from "../hooks/use-fixtures";
-import { useDevice } from "../libs/device";
-import { Fixture } from "../interfaces/Fixture";
-import { BorderOuterOutlined } from "@ant-design/icons";
-import ZoomedImage from "./common/zoomed-img";
-import useParentDimensions from "../hooks/use-parent-dimension";
 import { maxDesktopWidth } from "../libs/constants";
+import { useDevice } from "../libs/device";
 import { DesignerNoteIcon } from "../libs/icons";
+import { COLORS, FONTS } from "../styles/style-constants";
+import ZoomedImage from "./common/zoomed-img";
 
 const ProjectDetails: React.FC = () => {
   const { projectId } = useParams();
@@ -49,6 +49,7 @@ const ProjectDetails: React.FC = () => {
   const [slidesSortedBySpace, setSlidesSortedBySpace] = useState<Slide[]>();
   const [currentSlide, setCurrentSlide] = useState<Slide>();
   const [fixtureSelected, setFixtureSelected] = useState<Fixture>();
+  const [activeSlide, setActiveSlide] = useState(0);
 
   const [activeSpace, setActiveSpace] = useState<string>();
   const { data: fixtures, isLoading: fixturesLoading } =
@@ -58,6 +59,7 @@ const ProjectDetails: React.FC = () => {
     console.log(currentSlide);
     const slideCurrent = slidesSortedBySpace![currentSlide];
     setCurrentSlide(slideCurrent);
+    setActiveSlide(currentSlide);
   };
 
   useEffect(() => {
@@ -334,7 +336,7 @@ const ProjectDetails: React.FC = () => {
               {fixtureSelected.description && (
                 <Flex vertical style={{ marginTop: 24 }}>
                   <DesignerNoteIcon></DesignerNoteIcon>
-                  <Typography.Text style={{color: COLORS.textColorMedium}}>
+                  <Typography.Text style={{ color: COLORS.textColorMedium }}>
                     {fixtureSelected.description}
                   </Typography.Text>
                 </Flex>
@@ -375,56 +377,127 @@ const ProjectDetails: React.FC = () => {
     >
       {/* The header bar including name, one liner, tags */}
 
-      <Carousel
-        autoplay={true}
-        ref={slidesCarouselRef}
-        afterChange={onSlideChange}
-        style={{ width: "100%", margin: "auto" }}
-      >
-        {projectData?.previewImageUrl && (
-          <div>
-            <div
-              style={{
-                backgroundImage: `url(${projectData.previewImageUrl})`,
-                backgroundPosition: "center",
-                backgroundSize: "cover",
-                backgroundRepeat: "no-repeat",
-                width: "100%",
-                height: isMobile
-                  ? `${window.innerWidth}px`
-                  : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
-                    1.33333,
-                border: "1px solid",
-                borderColor: COLORS.borderColor,
-                flex: "none",
-              }}
-            ></div>
-          </div>
-        )}
-        {slidesSortedBySpace &&
-          slidesSortedBySpace!.map((sl: Slide) => {
-            return (
-              <div>
-                <div
-                  style={{
-                    backgroundImage: `url(${sl!.url})`,
-                    backgroundPosition: "center",
-                    backgroundSize: "cover",
-                    backgroundRepeat: "no-repeat",
-                    width: "100%",
-                    height: isMobile
-                      ? `${window.innerWidth}px`
-                      : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
-                        1.33333,
-                    border: "1px solid",
-                    borderColor: COLORS.borderColor,
-                    flex: "none",
-                  }}
-                ></div>
-              </div>
-            );
-          })}
-      </Carousel>
+      <div style={{ position: "relative" }}>
+        <Carousel
+          autoplay={true}
+          ref={slidesCarouselRef}
+          afterChange={onSlideChange}
+          style={{ width: "100%", margin: "auto" }}
+        >
+          {projectData?.previewImageUrl && (
+            <div>
+              <div
+                style={{
+                  backgroundImage: `url(${projectData.previewImageUrl})`,
+                  backgroundPosition: "center",
+                  backgroundSize: "cover",
+                  backgroundRepeat: "no-repeat",
+                  width: "100%",
+                  height: isMobile
+                    ? `${window.innerWidth}px`
+                    : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
+                      1.33333,
+                  border: "1px solid",
+                  borderColor: COLORS.borderColor,
+                  flex: "none",
+                }}
+              ></div>
+            </div>
+          )}
+          {slidesSortedBySpace &&
+            slidesSortedBySpace!.map((sl: Slide) => {
+              return (
+                <div>
+                  <div
+                    style={{
+                      backgroundImage: `url(${sl!.url})`,
+                      backgroundPosition: "center",
+                      backgroundSize: "cover",
+                      backgroundRepeat: "no-repeat",
+                      width: "100%",
+                      height: isMobile
+                        ? `${window.innerWidth}px`
+                        : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
+                          1.33333,
+                      border: "1px solid",
+                      borderColor: COLORS.borderColor,
+                      flex: "none",
+                    }}
+                  ></div>
+                </div>
+              );
+            })}
+        </Carousel>
+
+        <div
+          style={{
+            position: "absolute",
+            bottom: 20,
+            right: 15,
+          }}
+        >
+          <Link to={`/project/${projectId}/images`}>
+            <Button size="small" type="default">
+              {activeSlide + 1} /{" "}
+              {/* Add additional 1 to account for preview image */}
+              {slidesSortedBySpace?.length &&
+                slidesSortedBySpace.length + 1}{" "}
+              <ArrowRightOutlined style={{ transform: "rotate(-45deg)" }} />
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* <Carousel
+          autoplay={true}
+          ref={slidesCarouselRef}
+          afterChange={onSlideChange}
+          style={{ width: "100%", margin: "auto" }}
+        >
+          {projectData?.previewImageUrl && (
+            <div>
+              <div
+                style={{
+                  backgroundImage: `url(${projectData.previewImageUrl})`,
+                  backgroundPosition: "center",
+                  backgroundSize: "cover",
+                  backgroundRepeat: "no-repeat",
+                  width: "100%",
+                  height: isMobile
+                    ? `${window.innerWidth}px`
+                    : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
+                      1.33333,
+                  border: "1px solid",
+                  borderColor: COLORS.borderColor,
+                  flex: "none",
+                }}
+              ></div>
+            </div>
+          )}
+          {slidesSortedBySpace &&
+            slidesSortedBySpace!.map((sl: Slide) => {
+              return (
+                <div>
+                  <div
+                    style={{
+                      backgroundImage: `url(${sl!.url})`,
+                      backgroundPosition: "center",
+                      backgroundSize: "cover",
+                      backgroundRepeat: "no-repeat",
+                      width: "100%",
+                      height: isMobile
+                        ? `${window.innerWidth}px`
+                        : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
+                          1.33333,
+                      border: "1px solid",
+                      borderColor: COLORS.borderColor,
+                      flex: "none",
+                    }}
+                  ></div>
+                </div>
+              );
+            })}
+        </Carousel> */}
 
       <Flex vertical style={{ padding: 16 }} gap={8}>
         <Typography.Title level={3} style={{ margin: 0 }}>
