@@ -10,6 +10,7 @@ import Home from "../pages/home";
 import { ProfilePage } from "../pages/profile";
 import ProjectDetailsPage from "../pages/project/project-details";
 import { ProjectImagesPage } from "../pages/project/project-images";
+import SearchProjectsPage from "../pages/project/search";
 import Projects from "../pages/projects";
 
 export const Router = () => {
@@ -31,6 +32,8 @@ export const Router = () => {
         path="/project/:projectId/images"
         element={<ProjectImagesPage />}
       />
+
+      <Route path="/project/search" element={<SearchProjectsPage />} />
 
       <Route path="/*" element={<div>404</div>} />
     </Routes>
