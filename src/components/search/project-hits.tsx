@@ -33,7 +33,10 @@ export function ProjectHits(props: HitsProps<LabelData>) {
           <Typography.Text>No results found</Typography.Text>
         </>
       ) : (
-        <Row gutter={[35, 35]} style={{ width: "1200px" }}>
+        <Row
+          gutter={isMobile ? [20, 25] : [35, 35]}
+          style={{ width: "1200px" }}
+        >
           {Object.entries(groupedItems).map(([spaceId, hits]) => {
             const spaceName = hits[0].spaceName;
             const slideUrl = hits[0].slideUrl;
