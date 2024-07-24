@@ -3,8 +3,8 @@ import TypesenseInstantsearchAdapter from "typesense-instantsearch-adapter";
 export const TYPESENSE_HOST = import.meta.env.VITE_TYPESENSE_HOST;
 export const TYPESENSE_PORT = import.meta.env.VITE_TYPESENSE_PORT;
 export const TYPESENSE_PROTOCOL = import.meta.env.VITE_TYPESENSE_PROTOCOL;
-export const TYPESENSE_ADMIN_API_KEY = import.meta.env
-  .VITE_TYPESENSE_ADMIN_API_KEY;
+export const TYPESENSE_SEARCH_API_KEY = import.meta.env
+  .VITE_TYPESENSE_SEARCH_API_KEY;
 
 const config = {
   nodes: [
@@ -15,7 +15,7 @@ const config = {
     },
   ],
   // Todo add search only api key
-  apiKey: TYPESENSE_ADMIN_API_KEY,
+  apiKey: TYPESENSE_SEARCH_API_KEY,
   connectionTimeoutSeconds: 5,
   numRetries: 8,
 };
