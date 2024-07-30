@@ -1,6 +1,6 @@
 import {
   ArrowRightOutlined,
-  BorderOuterOutlined,
+  HeartFilled,
   HeartOutlined,
 } from "@ant-design/icons";
 import {
@@ -10,27 +10,32 @@ import {
   Drawer,
   Flex,
   Image,
+  message,
   Modal,
   Popover,
   Row,
   Segmented,
+  Spin,
   Tabs,
   TabsProps,
   Typography,
 } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useFetchFixturesByProject } from "../hooks/use-fixtures";
 import useParentDimensions from "../hooks/use-parent-dimension";
 import { useFetchProject } from "../hooks/use-projects";
 import { useFetchSlidesByProject } from "../hooks/use-slides";
 import { useFetchSpacesByProject } from "../hooks/use-spaces";
+import { useUser } from "../hooks/use-user";
 import { Fixture } from "../interfaces/Fixture";
 import { Slide } from "../interfaces/Slide";
 import { Space } from "../interfaces/Space";
 import { maxDesktopWidth } from "../libs/constants";
 import { useDevice } from "../libs/device";
 import { DesignerNoteIcon } from "../libs/icons";
+import { queryKeys } from "../libs/react-query/constants";
+import { queryClient } from "../libs/react-query/query-client";
 import { COLORS, FONTS } from "../styles/style-constants";
 import ZoomedImage from "./common/zoomed-img";
 
@@ -49,6 +54,10 @@ const ProjectDetails: React.FC = () => {
   const { data: spaces, isLoading: spacesLoading } = useFetchSpacesByProject(
     projectId!
   );
+
+  const { useUpdateUser, user } = useUser();
+  const updateUserMutation = useUpdateUser();
+  const navigate = useNavigate();
 
   const [slidesSortedBySpace, setSlidesSortedBySpace] = useState<Slide[]>();
   const [currentSlide, setCurrentSlide] = useState<Slide>();
@@ -226,6 +235,33 @@ const ProjectDetails: React.FC = () => {
 
   const randomPrice = (Math.random() * (15 - 8) + 8).toFixed(1);
 
+  const handleFavToggle = async () => {
+    if (!user) {
+      return navigate("/auth/login");
+    }
+
+    const { _id, favoriteProjects = [] } = user;
+
+    const updatedFavProjects = favoriteProjects.includes(projectId as string)
+      ? favoriteProjects.filter((id) => id.toString() !== projectId)
+      : [...favoriteProjects, projectId];
+
+    try {
+      await updateUserMutation.mutateAsync({
+        id: _id,
+        data: {
+          favoriteProjects: updatedFavProjects as string[],
+        },
+      });
+    } catch (error) {
+      message.error("Please try again later");
+    }
+
+    await queryClient.invalidateQueries({
+      queryKey: [queryKeys.user],
+    });
+  };
+
   return (
     <Flex
       vertical
@@ -400,9 +436,33 @@ const ProjectDetails: React.FC = () => {
               </Flex>
             </Flex>
 
-            <HeartOutlined
-              style={{ fontSize: "24px", color: COLORS.primaryColor }}
-            />
+            <Button
+              size="small"
+              onClick={handleFavToggle}
+              loading={updateUserMutation.isPending}
+            >
+              {user?.favoriteProjects?.includes(projectId as string) ? (
+                <>
+                  {!updateUserMutation.isPending ? (
+                    <HeartFilled
+                      style={{ fontSize: 24, color: COLORS.primaryColor }}
+                    />
+                  ) : !isMobile ? (
+                    "Saving"
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  {!updateUserMutation.isPending ? (
+                    <HeartOutlined
+                      style={{ fontSize: 24, color: COLORS.primaryColor }}
+                    />
+                  ) : !isMobile ? (
+                    "Removing"
+                  ) : null}
+                </>
+              )}
+            </Button>
           </Flex>
         </Flex>
       </Flex>
