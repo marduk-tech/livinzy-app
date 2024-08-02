@@ -11,7 +11,7 @@ export interface Fixture {
     description: string;
     _id: string;
   };
-  cost?: Number;
+  cost?: number;
   designName?: string;
   description?: string;
   projectId?: string;

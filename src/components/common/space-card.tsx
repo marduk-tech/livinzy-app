@@ -13,6 +13,7 @@ interface SpaceCardProps {
   fixtures: Fixture[];
   slides: Slide[];
   cardWidth?: number;
+  skipFixtures?: boolean;
 }
 
 export const SpaceCard: React.FC<SpaceCardProps> = ({
@@ -21,6 +22,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
   slides,
   fixtures,
   cardWidth,
+  skipFixtures = false
 }) => {
   const navigate = useNavigate();
   const { isMobile } = useDevice();
@@ -46,29 +48,9 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
     );
 
     return (
-      // <Typography.Text
-      //   style={{
-      //     margin: 0,
-      //     color: COLORS.textColorMedium,
-      //     fontFamily: FONTS.regular,
-      //     fontSize: 14,
-      //     maxWidth: "100%",
-      //     display: "-webkit-box",
-      //     WebkitBoxOrient: "vertical",
-      //     WebkitLineClamp: 1,
-      //     overflow: "hidden",
-      //     textOverflow: "ellipsis",
-      //   }}
-      // >
-      //   {spaceFixtures.map((fix, index: number) => {
-      //     return `${fix!.designName || fix!.fixtureType?.fixtureType}${
-      //       spaceFixtures.length === index + 1 ? null : ", "
-      //     }`;
-      //   })}
-      // </Typography.Text>
       <Paragraph
         ellipsis={{ rows: 2 }}
-        style={{ color: COLORS.textColorLight }}
+        style={{ color: COLORS.textColorLight, marginBottom: 8 }}
       >
         {spaceFixtures.map((fix, index: number) => {
           return `${fix!.fixtureType?.fixtureType || fix!.fixtureType?.fixtureType}${
@@ -89,6 +71,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
         borderColor: COLORS.borderColor,
         backgroundColor: "white",
         width: cardWidth || (isMobile ? "45%" : 225),
+        minWidth: cardWidth || (isMobile ? "45%" : 225),
       }}
     >
       <Flex
@@ -116,11 +99,11 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
 
         <Flex style={{ padding: "0px 10px" }} vertical>
           <Flex justify="space-between">
-            <Typography.Title level={5} style={{ margin: 0 }}>
+            <Typography.Title level={5} style={{ margin: 0, marginBottom: 8 }}>
               {space.name}
             </Typography.Title>
 
-            {space.cost && (
+            {/* {space.cost && (
               <Typography.Text
                 style={{
                   flexShrink: 0,
@@ -132,10 +115,10 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
               >
                 ₹{convertCostToReadableFormat(space.cost)}
               </Typography.Text>
-            )}
+            )} */}
           </Flex>
 
-          {renderSpaceFixtures(space)}
+          {!skipFixtures && renderSpaceFixtures(space)}
         </Flex>
       </Flex>
     </Flex>

@@ -40,6 +40,8 @@ import {
 import { COLORS, FONTS } from "../../styles/style-constants";
 import ZoomedImage from "../../components/common/zoomed-img";
 import { SpaceCard } from "../../components/common/space-card";
+import { formatCost } from "../../libs/lvnzy-helper";
+import Paragraph from "antd/es/typography/Paragraph";
 
 const SpaceDetails: React.FC = () => {
   const { projectId, spaceId } = useParams();
@@ -206,7 +208,7 @@ const SpaceDetails: React.FC = () => {
 
         {/* One liner and buttons */}
         <Flex vertical>
-          {projectData.oneLiner && (
+          {spaceData.oneLiner && (
             <Typography.Text
               style={{
                 margin: 0,
@@ -216,7 +218,12 @@ const SpaceDetails: React.FC = () => {
                 fontFamily: FONTS.regular,
               }}
             >
-              {projectData.oneLiner.substring(0, 100)!}
+              <Paragraph
+                ellipsis={{ rows: 3, expandable: true, symbol: "More" }}
+                style={{ color: COLORS.textColorMedium }}
+              >
+                {spaceData.oneLiner!}
+              </Paragraph>
             </Typography.Text>
           )}
           <Flex style={{ marginTop: 16 }}>
@@ -234,18 +241,6 @@ const SpaceDetails: React.FC = () => {
               }}
             >
               Cost
-            </Button>
-            <Button
-              icon={<RupeesIcon></RupeesIcon>}
-              type="link"
-              style={{
-                padding: 0,
-                paddingRight: 16,
-                height: 32,
-                color: COLORS.textColorDark,
-              }}
-            >
-              Photos
             </Button>
             <Button
               icon={<DesignerIcon></DesignerIcon>}
@@ -266,11 +261,12 @@ const SpaceDetails: React.FC = () => {
       {/* The carousel for the space */}
       <div style={{ position: "relative" }}>
         <Carousel
-          autoplay={false}
+          autoplay={true}
           autoplaySpeed={5000}
           speed={1000}
           ref={slidesCarouselRef}
           fade={true}
+          dots={true}
           afterChange={onSlideChange}
           style={{ width: "100%", margin: "auto" }}
         >
@@ -385,10 +381,7 @@ const SpaceDetails: React.FC = () => {
         </Flex>
       </Flex>
 
-      <Flex style={{padding: "0px 24px", marginTop: 16}}>
-        
-      </Flex>
-
+      {/* Fixture components list */}
       <Flex
         gap={24}
         vertical
@@ -399,8 +392,8 @@ const SpaceDetails: React.FC = () => {
           borderRadius: 16,
         }}
       >
-        <Typography.Title level={3} style={{margin: 0, marginBottom: 0}}>
-              {fixtureSelected?.designName}
+        <Typography.Title level={3} style={{ margin: 0, marginBottom: 0 }}>
+          {fixtureSelected?.designName}
         </Typography.Title>
         {fixtureSelected && fixtureSelected.components
           ? fixtureSelected!.components.map((component: any) => {
@@ -443,6 +436,8 @@ const SpaceDetails: React.FC = () => {
             whiteSpace: "nowrap",
             overflowX: "scroll",
             width: "100%",
+            scrollbarWidth: "none" /* Firefox */,
+            msOverflowStyle: "none" /* IE and Edge */,
           }}
           gap={16}
         >
@@ -459,16 +454,85 @@ const SpaceDetails: React.FC = () => {
                 slides={spaceSlides}
                 projectId={projectId!}
                 fixtures={fixtures}
+                skipFixtures={true}
               ></SpaceCard>
             );
           })}
         </Flex>
       </Flex>
 
-      <Modal title="Cost Details" open={isCostDialogOpen} footer={() => <></>}>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
+      {/* Cost Dialog */}
+      <Modal
+        title="Costing Details"
+        open={isCostDialogOpen}
+        closable={true}
+        onCancel={() => {
+          setIsCostDialogOpen(false);
+        }}
+        footer={() => <></>}
+      >
+        <Flex vertical style={{ margin: "16px 0" }}>
+          <Typography.Text style={{ textTransform: "uppercase" }}>
+            Total Cost
+          </Typography.Text>
+          <Typography.Title level={3} style={{ margin: 0 }}>
+            {formatCost(spaceData.cost)}
+          </Typography.Title>
+        </Flex>
+        <div
+          style={{
+            overflow: "hidden",
+            borderRadius: "10px",
+            border: "1px solid",
+            borderColor: COLORS.borderColorDark,
+            boxShadow: "inset 0 0 0 1px black",
+          }}
+        >
+          <table
+            style={{
+              borderCollapse: "separate",
+              borderSpacing: 0,
+              width: "100%",
+            }}
+          >
+            <thead>
+              <tr>
+                <th
+                  style={{
+                    border: "1px solid",
+                    padding: "8px",
+                    textAlign: "left",
+                  }}
+                >
+                  Fixture
+                </th>
+                <th
+                  style={{
+                    border: "1px solid",
+                    padding: "8px",
+                    textAlign: "left",
+                  }}
+                >
+                  Cost
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {spaceFixtures!.map((fixture: Fixture, index: number) => {
+                return (
+                  <tr key={index}>
+                    <td style={{ border: "1px solid black", padding: "8px" }}>
+                      {fixture.designName}
+                    </td>
+                    <td
+                      style={{ border: "1px solid black", padding: "8px" }}
+                    >{`${formatCost(fixture.cost || 0)}`}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </Modal>
     </Flex>
   );

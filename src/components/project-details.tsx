@@ -45,6 +45,7 @@ import { COLORS, FONTS } from "../styles/style-constants";
 import ZoomedImage from "./common/zoomed-img";
 import { SpaceCard } from "./common/space-card";
 import Paragraph from "antd/es/typography/Paragraph";
+import { formatCost } from "../libs/lvnzy-helper";
 
 const randomPrice = (Math.random() * (15 - 8) + 8).toFixed(1);
 
@@ -55,6 +56,7 @@ const ProjectDetails: React.FC = () => {
   const { isMobile } = useDevice();
   const slidesCarouselRef = useRef(null);
   const { ref, dimensions } = useParentDimensions();
+  const [isCostDialogOpen, setIsCostDialogOpen] = useState(false);
 
   const { data: projectData, isLoading: projectDataLoading } = useFetchProject(
     projectId!
@@ -153,7 +155,6 @@ const ProjectDetails: React.FC = () => {
   const validSpaces = filterZombieSpaces(spaces).sort((s1: Space, s2: Space) =>
     s2._id!.localeCompare(s1._id!)
   );
-
 
   const handleFavToggle = async () => {
     if (!user) {
@@ -306,93 +307,44 @@ const ProjectDetails: React.FC = () => {
             borderBottomColor: COLORS.borderColorDark,
           }}
         >
-            {projectData.oneLiner && (
-              <Paragraph
-                ellipsis={{ rows: 3, expandable: true, symbol: "More" }}
-                style={{ color: COLORS.textColorMedium }}
-              >
-                {projectData.oneLiner!}
-              </Paragraph>
-            )}
+          {projectData.oneLiner && (
+            <Paragraph
+              ellipsis={{ rows: 3, expandable: true, symbol: "More" }}
+              style={{ color: COLORS.textColorMedium }}
+            >
+              {projectData.oneLiner!}
+            </Paragraph>
+          )}
 
           <Flex style={{ marginTop: 8 }}>
             <Button
               icon={<RupeesIcon></RupeesIcon>}
               type="link"
-              style={{ padding: 0, paddingRight: 16, height: 32, color: COLORS.textColorDark }}
+              onClick={() => {
+                setIsCostDialogOpen(true);
+              }}
+              style={{
+                padding: 0,
+                paddingRight: 16,
+                height: 32,
+                color: COLORS.textColorDark,
+              }}
             >
               Cost
             </Button>
             <Button
               icon={<DesignerIcon></DesignerIcon>}
               type="link"
-              style={{ padding: 0, paddingRight: 16, height: 32, color: COLORS.textColorDark }}
+              style={{
+                padding: 0,
+                paddingRight: 16,
+                height: 32,
+                color: COLORS.textColorDark,
+              }}
             >
               Designer Info
             </Button>
           </Flex>
-          {/* <Flex
-            justify="space-between"
-            align="center"
-            style={{ marginTop: 12 }}
-          >
-            <Flex gap={8} align="center">
-              <Image
-                src={projectData.designerId.profilePicture}
-                width={44}
-                height="auto"
-                style={{ borderRadius: "50%" }}
-                preview={false}
-              ></Image>
-
-              <Flex vertical>
-                <Typography.Text
-                  style={{
-                    color: COLORS.textColorMedium,
-                    fontSize: 14,
-                    fontFamily: FONTS.regular,
-                  }}
-                >
-                  Designed By
-                </Typography.Text>
-
-                <Typography.Title
-                  level={5}
-                  style={{ margin: 0, marginTop: -2 }}
-                >
-                  {projectData.designerId.designerName}
-                </Typography.Title>
-              </Flex>
-            </Flex>
-
-            <Button
-              size="small"
-              onClick={handleFavToggle}
-              loading={updateUserMutation.isPending}
-            >
-              {user?.favoriteProjects?.includes(projectId as string) ? (
-                <>
-                  {!updateUserMutation.isPending ? (
-                    <HeartFilled
-                      style={{ fontSize: 24, color: COLORS.primaryColor }}
-                    />
-                  ) : !isMobile ? (
-                    "Saving"
-                  ) : null}
-                </>
-              ) : (
-                <>
-                  {!updateUserMutation.isPending ? (
-                    <HeartOutlined
-                      style={{ fontSize: 24, color: COLORS.primaryColor }}
-                    />
-                  ) : !isMobile ? (
-                    "Removing"
-                  ) : null}
-                </>
-              )}
-            </Button>
-          </Flex> */}
         </Flex>
       </Flex>
 
@@ -405,88 +357,84 @@ const ProjectDetails: React.FC = () => {
       >
         {renderSpaces(validSpaces)}
       </Row>
+      <Modal
+        title="Costing Details"
+        open={isCostDialogOpen}
+        closable={true}
+        onCancel={() => {
+          setIsCostDialogOpen(false);
+        }}
+        footer={() => <></>}
+      >
+        <Flex vertical style={{ margin: "16px 0" }}>
+          <Typography.Text style={{ textTransform: "uppercase" }}>
+            Total Cost
+          </Typography.Text>
+          <Typography.Title level={3} style={{ margin: 0 }}>
+            {formatCost(
+              spaces.reduce((accumulator: number, space: Space) => {
+                return accumulator + (space.cost || 0);
+              }, 0)
+            )}
+          </Typography.Title>
+        </Flex>
+        <div
+          style={{
+            overflow: "hidden",
+            borderRadius: "10px",
+            border: "1px solid",
+            boxShadow: 'inset 0 0 0 1px black',
+            borderColor: COLORS.borderColorDark,
+          }}
+        >
+          <table
+            style={{
+              borderCollapse: "separate",
+              borderSpacing: 0,
+              width: "100%",
+            }}
+          >
+            <thead>
+              <tr>
+                <th
+                  style={{
+                    border: "1px solid",
+                    padding: "8px",
+                    textAlign: "left",
+                  }}
+                >
+                  Fixture
+                </th>
+                <th
+                  style={{
+                    border: "1px solid",
+                    padding: "8px",
+                    textAlign: "left",
+                  }}
+                >
+                  Cost
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {spaces!.map((space: Space, index: number) => {
+                return (
+                  <tr key={index}>
+                    <td style={{ border: "1px solid black", padding: "8px" }}>
+                      {space.name}
+                    </td>
+                    <td
+                      style={{ border: "1px solid black", padding: "8px" }}
+                    >{`${formatCost(space.cost || 0)}`}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Modal>
     </Flex>
   );
 };
 
 export default ProjectDetails;
-
-{
-  /* <Carousel
-          autoplay={true}
-          ref={slidesCarouselRef}
-          afterChange={onSlideChange}
-          style={{ width: "100%", margin: "auto" }}
-        >
-          {projectData?.previewImageUrl && (
-            <div>
-              <div
-                style={{
-                  backgroundImage: `url(${projectData.previewImageUrl})`,
-                  backgroundPosition: "center",
-                  backgroundSize: "cover",
-                  backgroundRepeat: "no-repeat",
-                  width: "100%",
-                  height: isMobile
-                    ? `${window.innerWidth}px`
-                    : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
-                      1.33333,
-                  border: "1px solid",
-                  borderColor: COLORS.borderColor,
-                  flex: "none",
-                }}
-              ></div>
-            </div>
-          )}
-          {slidesSortedBySpace &&
-            slidesSortedBySpace!.map((sl: Slide) => {
-              return (
-                <div>
-                  <div
-                    style={{
-                      backgroundImage: `url(${sl!.url})`,
-                      backgroundPosition: "center",
-                      backgroundSize: "cover",
-                      backgroundRepeat: "no-repeat",
-                      width: "100%",
-                      height: isMobile
-                        ? `${window.innerWidth}px`
-                        : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
-                          1.33333,
-                      border: "1px solid",
-                      borderColor: COLORS.borderColor,
-                      flex: "none",
-                    }}
-                  ></div>
-                </div>
-              );
-            })}
-        </Carousel> */
-}
-
-{
-  /* <Row >
-              {validSpaces.map((space: Space) => {
-                return (
-                  <Col span={12}>
-                    <Flex vertical align="center" style={}>
-                      <Image
-                        width={80}
-                        height={80}
-                        src={space.spaceType.icon}
-                        style={{ filter: COLORS.textColorMediumFilter }}
-                      ></Image>
-                      <Typography.Text
-                        style={{
-                          color: COLORS.textColorMedium,
-                          fontSize: "80%",
-                        }}
-                      >
-                        {space.name}
-                      </Typography.Text>
-                    </Flex>
-                  </Col>
-                );
-              })}
-            </Row> */
-}
