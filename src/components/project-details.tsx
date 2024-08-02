@@ -33,13 +33,24 @@ import { Slide } from "../interfaces/Slide";
 import { Space } from "../interfaces/Space";
 import { maxDesktopWidth } from "../libs/constants";
 import { useDevice } from "../libs/device";
-import { DesignerNoteIcon } from "../libs/icons";
+import {
+  DesignerIcon,
+  DesignerNoteIcon,
+  PhotosIcon,
+  RupeesIcon,
+} from "../libs/icons";
 import { queryKeys } from "../libs/react-query/constants";
 import { queryClient } from "../libs/react-query/query-client";
 import { COLORS, FONTS } from "../styles/style-constants";
 import ZoomedImage from "./common/zoomed-img";
+import { SpaceCard } from "./common/space-card";
+import Paragraph from "antd/es/typography/Paragraph";
+
+const randomPrice = (Math.random() * (15 - 8) + 8).toFixed(1);
 
 const ProjectDetails: React.FC = () => {
+  const navigate = useNavigate();
+
   const { projectId } = useParams();
   const { isMobile } = useDevice();
   const slidesCarouselRef = useRef(null);
@@ -57,7 +68,6 @@ const ProjectDetails: React.FC = () => {
 
   const { useUpdateUser, user } = useUser();
   const updateUserMutation = useUpdateUser();
-  const navigate = useNavigate();
 
   const [slidesSortedBySpace, setSlidesSortedBySpace] = useState<Slide[]>();
   const [currentSlide, setCurrentSlide] = useState<Slide>();
@@ -104,118 +114,29 @@ const ProjectDetails: React.FC = () => {
     <DefaultTabBar {...props} style={{ margin: 0, padding: "8" }} />
   );
 
-  function convertCostToReadableFormat(value: number) {
-    if (value >= 10000000) {
-      return (value / 10000000).toFixed(1).replace(/\.0$/, "") + "Cr"; // Crores
-    } else if (value >= 100000) {
-      return (value / 100000).toFixed(1).replace(/\.0$/, "") + "L"; // Lakhs
-    } else if (value >= 1000) {
-      return (value / 1000).toFixed(1).replace(/\.0$/, "") + "k"; // Thousands
-    }
-    return value.toString();
-  }
-
   /**
    * Displays all spaces in a tabbed layout
    * @returns
    */
   const renderSpaces = (validSpaces: Space[]) => {
-    return validSpaces.map((space: Space) => {
-      const slide = slides!.filter((s: Slide) =>
-        s.spaces!.includes(space!._id!)
-      )[0];
-
-      return (
-        <Col span={12}>
-          <Flex vertical>
-            <Flex>
-              {slide! && (
-                <div
-                  style={{
-                    backgroundImage: `url(${slide!.url})`,
-                    backgroundPosition: "center",
-                    backgroundSize: "cover",
-                    backgroundRepeat: "no-repeat",
-                    borderRadius: 16,
-                    width: "100%",
-                    height: 190,
-                    border: "1px solid",
-                    borderColor: COLORS.borderColor,
-                    flex: "none",
-                  }}
-                ></div>
-              )}
-            </Flex>
-
-            <Flex
-              gap={4}
-              style={{ marginTop: 10, padding: "0px 10px" }}
-              vertical
-            >
-              <Flex justify="space-between">
-                <Typography.Title level={5} style={{ margin: 0 }}>
-                  {space.name}
-                </Typography.Title>
-
-                {space.cost && (
-                  <Typography.Text
-                    style={{
-                      flexShrink: 0,
-                      margin: 0,
-                      fontFamily: FONTS.regular,
-                      fontSize: 18,
-
-                      color: COLORS.textColorMedium,
-                    }}
-                  >
-                    ₹{convertCostToReadableFormat(space.cost)}
-                  </Typography.Text>
-                )}
-              </Flex>
-
-              {renderSpaceFixtures(space._id!)}
-            </Flex>
-          </Flex>
-        </Col>
-      );
-    });
-  };
-
-  const renderSpaceFixtures = (spaceId: string) => {
-    if (!spaceId) {
-      return;
-    }
-    const spaceSlides = slides?.filter(
-      (s: Slide) => s.spaces?.includes(spaceId)
-    );
-    const uniqueFixturesIds: string[] = [];
-    spaceSlides?.forEach((s: Slide) => {
-      s.fixtures!.forEach((f: string) => {
-        if (!uniqueFixturesIds.includes(f)) {
-          uniqueFixturesIds.push(f);
-        }
-      });
-    });
-
-    const spaceFixtures = uniqueFixturesIds
-      .map((f: string) => fixtures.find((fo: Fixture) => fo._id == f))
-      .filter((f: Fixture) => !!f);
-
     return (
-      <Typography.Text
-        style={{
-          margin: 0,
-          color: COLORS.textColorMedium,
-          fontFamily: FONTS.regular,
-          fontSize: 14,
-        }}
-      >
-        {spaceFixtures.map((fix: Fixture, index: number) => {
-          return `${fix.designName || fix.fixtureType?.fixtureType}${
-            spaceFixtures.length === index + 1 ? null : ", "
-          }`;
+      <Flex style={{ flexWrap: "wrap", margin: "auto", padding: 8 }} gap={12}>
+        {" "}
+        {validSpaces.map((space: Space) => {
+          const spaceSlides = slides!.filter((s: Slide) =>
+            s.spaces!.includes(space!._id!)
+          );
+
+          return (
+            <SpaceCard
+              space={space}
+              slides={spaceSlides}
+              projectId={projectId!}
+              fixtures={fixtures}
+            ></SpaceCard>
+          );
         })}
-      </Typography.Text>
+      </Flex>
     );
   };
 
@@ -233,7 +154,6 @@ const ProjectDetails: React.FC = () => {
     s2._id!.localeCompare(s1._id!)
   );
 
-  const randomPrice = (Math.random() * (15 - 8) + 8).toFixed(1);
 
   const handleFavToggle = async () => {
     if (!user) {
@@ -292,7 +212,7 @@ const ProjectDetails: React.FC = () => {
                   backgroundRepeat: "no-repeat",
                   width: "100%",
                   height: isMobile
-                    ? `${window.innerWidth}px`
+                    ? "200px"
                     : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
                       1.33333,
                   border: "1px solid",
@@ -314,7 +234,7 @@ const ProjectDetails: React.FC = () => {
                       backgroundRepeat: "no-repeat",
                       width: "100%",
                       height: isMobile
-                        ? `${window.innerWidth}px`
+                        ? `200px`
                         : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
                           1.33333,
                       border: "1px solid",
@@ -356,7 +276,7 @@ const ProjectDetails: React.FC = () => {
       >
         <Flex justify="space-between">
           <Flex vertical gap={5}>
-            <Typography.Title level={4} style={{ margin: 0 }}>
+            <Typography.Title level={2} style={{ margin: 0 }}>
               {projectData.name}
             </Typography.Title>
             <Flex
@@ -372,37 +292,46 @@ const ProjectDetails: React.FC = () => {
             </Flex>
           </Flex>
 
-          <Typography.Title
+          {/* <Typography.Title
             level={4}
             style={{ margin: 0 }}
-          >{`₹${randomPrice} L`}</Typography.Title>
+          >{`₹${randomPrice} L`}</Typography.Title> */}
         </Flex>
 
         <Flex
           vertical
-          gap={12}
           style={{
             paddingBottom: 24,
             borderBottom: "1px solid",
             borderBottomColor: COLORS.borderColorDark,
           }}
         >
-          <Flex vertical gap={8}>
             {projectData.oneLiner && (
-              <Typography.Text
-                style={{
-                  margin: 0,
-                  color: COLORS.textColorMedium,
-                  fontFamily: FONTS.regular,
-                  fontSize: 14,
-                }}
+              <Paragraph
+                ellipsis={{ rows: 3, expandable: true, symbol: "More" }}
+                style={{ color: COLORS.textColorMedium }}
               >
                 {projectData.oneLiner!}
-              </Typography.Text>
+              </Paragraph>
             )}
-          </Flex>
 
-          <Flex
+          <Flex style={{ marginTop: 8 }}>
+            <Button
+              icon={<RupeesIcon></RupeesIcon>}
+              type="link"
+              style={{ padding: 0, paddingRight: 16, height: 32, color: COLORS.textColorDark }}
+            >
+              Cost
+            </Button>
+            <Button
+              icon={<DesignerIcon></DesignerIcon>}
+              type="link"
+              style={{ padding: 0, paddingRight: 16, height: 32, color: COLORS.textColorDark }}
+            >
+              Designer Info
+            </Button>
+          </Flex>
+          {/* <Flex
             justify="space-between"
             align="center"
             style={{ marginTop: 12 }}
@@ -463,21 +392,9 @@ const ProjectDetails: React.FC = () => {
                 </>
               )}
             </Button>
-          </Flex>
+          </Flex> */}
         </Flex>
       </Flex>
-
-      {/* <Flex align="center" style={{ marginTop: 16, padding: 16 }} gap={16}>
-        <BorderOuterOutlined
-          style={{ transform: "scale(1.4)", color: COLORS.textColorMedium }}
-        />
-        <Typography.Title
-          level={4}
-          style={{ margin: 0, marginTop: 0, color: COLORS.textColorMedium }}
-        >
-          Spaces Designed
-        </Typography.Title>
-      </Flex> */}
 
       <Row
         gutter={[24, 40]}

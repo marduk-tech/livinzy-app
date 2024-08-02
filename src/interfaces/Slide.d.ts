@@ -1,3 +1,4 @@
+import { BoundingBox, FixtureImageBounds } from "./Fixture";
 import { Space } from "./Space";
 
 export interface Slide {
@@ -5,6 +6,7 @@ export interface Slide {
   url: string;
   spaces?: string[];
   fixtures?: string[];
+  fixturesMapping?: FixtureImageBounds[];
 }
 
 interface SlideDetailsProps {

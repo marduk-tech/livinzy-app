@@ -12,6 +12,7 @@ export interface Space {
     icon: string;
     _id: string;
   };
+  fixtures: string[];
   cost: number;
   projectId: string;
 }

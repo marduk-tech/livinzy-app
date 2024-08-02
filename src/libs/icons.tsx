@@ -236,6 +236,88 @@ const DesignerNoteIcon = () => (
   </svg>
 );
 
+const RupeesIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    className="lucide lucide-badge-indian-rupee"
+  >
+    <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" />
+    <path d="M8 8h8" />
+    <path d="M8 12h8" />
+    <path d="m13 17-5-1h1a4 4 0 0 0 0-8" />
+  </svg>
+);
+const DesignerIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    className="lucide lucide-venetian-mask"
+  >
+    <path d="M2 12a5 5 0 0 0 5 5 8 8 0 0 1 5 2 8 8 0 0 1 5-2 5 5 0 0 0 5-5V7h-5a8 8 0 0 0-5 2 8 8 0 0 0-5-2H2Z" />
+    <path d="M6 11c1.5 0 3 .5 3 2-2 0-3 0-3-2Z" />
+    <path d="M18 11c-1.5 0-3 .5-3 2 2 0 3 0 3-2Z" />
+  </svg>
+);
+
+const PhotosIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    className="lucide lucide-images"
+  >
+    <path d="M18 22H4a2 2 0 0 1-2-2V6" />
+    <path d="m22 13-1.296-1.296a2.41 2.41 0 0 0-3.408 0L11 18" />
+    <circle cx="12" cy="8" r="2" />
+    <rect width="16" height="16" x="6" y="2" rx="2" />
+  </svg>
+);
+
+const FixtureIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    className="lucide lucide-brick-wall"
+  >
+    <rect width="18" height="18" x="3" y="3" rx="2" />
+    <path d="M12 9v6" />
+    <path d="M16 15v6" />
+    <path d="M16 3v6" />
+    <path d="M3 15h18" />
+    <path d="M3 9h18" />
+    <path d="M8 15v6" />
+    <path d="M8 3v6" />
+  </svg>
+);
+
 export {
   PhoneIcon,
   NavigateIcon,
@@ -248,5 +330,9 @@ export {
   StoreIcon,
   EditIcon,
   CompleteIcon,
-  DesignerNoteIcon
+  DesignerNoteIcon,
+  RupeesIcon,
+  DesignerIcon,
+  FixtureIcon,
+  PhotosIcon
 };

@@ -12,6 +12,7 @@ import ProjectDetailsPage from "../pages/project/project-details";
 import { ProjectImagesPage } from "../pages/project/project-images";
 import SearchProjectsPage from "../pages/project/search";
 import Projects from "../pages/projects";
+import SpaceDetails from "../pages/space/space-details";
 
 export const Router = () => {
   return (
@@ -28,6 +29,7 @@ export const Router = () => {
       <Route path="/auth/login" element={<LoginPage />} />
 
       <Route path="/project/:projectId" element={<ProjectDetailsPage />} />
+      <Route path="/project/:projectId/space/:spaceId" element={<SpaceDetails />} />
       <Route
         path="/project/:projectId/images"
         element={<ProjectImagesPage />}
