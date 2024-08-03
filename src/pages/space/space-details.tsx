@@ -75,31 +75,19 @@ const SpaceDetails: React.FC = () => {
     useFetchFixturesByProject(projectId!);
 
   const onSlideChange = (currentSlide: number) => {
-    setActiveSlide(currentSlide);
-    updateFixtureBoundingBox();
-  };
-
-  /**
-   * Set fixtures for the space
-   */
-  useEffect(() => {
-    if (!slides || !fixtures) {
+    if (!fixtureSlides || !fixtureSlides.length) {
       return;
     }
+    setActiveSlide(currentSlide);
+    updateFixtureBoundingBox(fixtureSlides[currentSlide]);
+  };
 
-    const spaceSlides = slides?.filter(
-      (s: Slide) => s.spaces?.includes(spaceId!)
-    );
-    setSpaceSlides(spaceSlides);
-    const uniqueFixturesIds: string[] = [];
-    spaceSlides?.forEach((s: Slide) => {
-      s.fixtures!.forEach((f: string) => {
-        if (!uniqueFixturesIds.includes(f)) {
-          uniqueFixturesIds.push(f);
-        }
-      });
-    });
-  }, [slides, fixtures]);
+  useEffect(() => {
+    if (!spaceData) {
+      return;
+    }
+    setSpaceSlides(spaceData.slides);
+  }, [spaceData])
 
   useEffect(() => {
     if (!slides) {
@@ -110,15 +98,12 @@ const SpaceDetails: React.FC = () => {
     );
     setFixtureSlides(fixtureSlidesTemp);
     setActiveSlide(0);
-    updateFixtureBoundingBox();
+    updateFixtureBoundingBox(fixtureSlidesTemp[0]);
   }, [fixtureSelected]);
 
-  const updateFixtureBoundingBox = () => {
-    if (!fixtureSlides || !fixtureSlides.length) {
-      return;
-    }
-    const activeSlideObj = fixtureSlides[activeSlide];
+  const updateFixtureBoundingBox = (activeSlideObj: Slide) => {
     if (
+      activeSlideObj &&
       activeSlideObj.fixturesMapping &&
       activeSlideObj.fixturesMapping.length
     ) {
@@ -145,9 +130,7 @@ const SpaceDetails: React.FC = () => {
 
     const tempSpaceData = spaces.find((space: Space) => space._id == spaceId);
     setSpaceData(tempSpaceData);
-    const spaceFixtures = tempSpaceData!.fixtures.map((f: string) =>
-      fixtures.find((fix: Fixture) => fix._id == f)
-    );
+    const spaceFixtures = tempSpaceData!.fixtures;
 
     setSpaceFixtures(spaceFixtures);
     setFixtureSelected(spaceFixtures[0]);
@@ -191,87 +174,19 @@ const SpaceDetails: React.FC = () => {
     >
       {/* The header bar including name, one liner, tags */}
 
-      <Flex vertical style={{ padding: 16 }} gap={8}>
-        {/* Space name */}
-        <Typography.Title
-          level={2}
-          style={{ margin: 0, fontFamily: FONTS.bold }}
-        >
-          {spaceData.name || spaceData?.spaceType.spaceType}
-        </Typography.Title>
-
-        {/* Meta info */}
-        <Flex gap={4}>
-          {projectData.homeDetails?.homeType.homeType!} ·{" "}
-          {projectData.homeDetails?.size} sqft
-        </Flex>
-
-        {/* One liner and buttons */}
-        <Flex vertical>
-          {spaceData.oneLiner && (
-            <Typography.Text
-              style={{
-                margin: 0,
-                lineHeight: "120%",
-
-                color: COLORS.textColorMedium,
-                fontFamily: FONTS.regular,
-              }}
-            >
-              <Paragraph
-                ellipsis={{ rows: 3, expandable: true, symbol: "More" }}
-                style={{ color: COLORS.textColorMedium }}
-              >
-                {spaceData.oneLiner!}
-              </Paragraph>
-            </Typography.Text>
-          )}
-          <Flex style={{ marginTop: 16 }}>
-            <Button
-              icon={<RupeesIcon></RupeesIcon>}
-              type="link"
-              onClick={() => {
-                setIsCostDialogOpen(true);
-              }}
-              style={{
-                padding: 0,
-                paddingRight: 16,
-                height: 32,
-                color: COLORS.textColorDark,
-              }}
-            >
-              Cost
-            </Button>
-            <Button
-              icon={<DesignerIcon></DesignerIcon>}
-              type="link"
-              style={{
-                padding: 0,
-                paddingRight: 16,
-                height: 32,
-                color: COLORS.textColorDark,
-              }}
-            >
-              Designer Info
-            </Button>
-          </Flex>
-        </Flex>
-      </Flex>
+      
 
       {/* The carousel for the space */}
       <div style={{ position: "relative" }}>
         <Carousel
-          autoplay={true}
-          autoplaySpeed={5000}
-          speed={1000}
           ref={slidesCarouselRef}
           fade={true}
-          dots={true}
+          autoplay={true}
           afterChange={onSlideChange}
           style={{ width: "100%", margin: "auto" }}
         >
-          {spaceSlides &&
-            spaceSlides!.map((sl: Slide) => {
+          {fixtureSlides &&
+            fixtureSlides!.map((sl: Slide) => {
               const divWidth = isMobile
                 ? window.innerWidth
                 : Math.min(window.innerWidth * 0.58, maxDesktopWidth);
@@ -330,8 +245,75 @@ const SpaceDetails: React.FC = () => {
         </div>
       </div>
 
+      <Flex vertical style={{ padding: "0 16px", marginTop: 16 }} gap={8}>
+        {/* Space name */}
+        <Typography.Title
+          level={2}
+          style={{ margin: 0, fontFamily: FONTS.bold, marginBottom: 0 }}
+        >
+          {spaceData.name || spaceData?.spaceType.spaceType}
+        </Typography.Title>
+
+        {/* Meta info */}
+        {/* <Flex gap={4}>
+          {projectData.homeDetails?.homeType.homeType!} ·{" "}
+          {projectData.homeDetails?.size} sqft
+        </Flex> */}
+
+        {/* One liner and buttons */}
+        {/* <Flex vertical>
+          {spaceData.oneLiner && (
+            <Typography.Text
+              style={{
+                margin: 0,
+                lineHeight: "120%",
+
+                color: COLORS.textColorMedium,
+                fontFamily: FONTS.regular,
+              }}
+            >
+              <Paragraph
+                ellipsis={{ rows: 3, expandable: true, symbol: "More" }}
+                style={{ color: COLORS.textColorMedium }}
+              >
+                {spaceData.oneLiner!}
+              </Paragraph>
+            </Typography.Text>
+          )}
+          <Flex style={{ marginTop: 16 }}>
+            <Button
+              icon={<RupeesIcon></RupeesIcon>}
+              type="link"
+              onClick={() => {
+                setIsCostDialogOpen(true);
+              }}
+              style={{
+                padding: 0,
+                paddingRight: 16,
+                height: 32,
+                color: COLORS.textColorDark,
+              }}
+            >
+              Cost
+            </Button>
+            <Button
+              icon={<DesignerIcon></DesignerIcon>}
+              type="link"
+              style={{
+                padding: 0,
+                paddingRight: 16,
+                height: 32,
+                color: COLORS.textColorDark,
+              }}
+            >
+              Designer Info
+            </Button>
+          </Flex>
+        </Flex> */}
+      </Flex>
+
       {/* Fixtures horizontal list */}
-      <Flex vertical style={{ marginTop: 16, padding: 16 }} gap={8}>
+      <Flex vertical style={{ marginTop: 0, padding: 16 }} gap={8}>
         <Flex
           style={{
             overflowX: "scroll",
@@ -388,11 +370,12 @@ const SpaceDetails: React.FC = () => {
         style={{
           padding: 16,
           margin: 16,
+          marginTop: 8,
           backgroundColor: "white",
           borderRadius: 16,
         }}
       >
-        <Typography.Title level={3} style={{ margin: 0, marginBottom: 0 }}>
+        <Typography.Title level={4} style={{ margin: 0, marginBottom: 0 }}>
           {fixtureSelected?.designName}
         </Typography.Title>
         {fixtureSelected && fixtureSelected.components
@@ -430,7 +413,7 @@ const SpaceDetails: React.FC = () => {
 
       {/* More from this project */}
       <Flex vertical style={{ padding: 16 }}>
-        <Typography.Title level={4}>More from this project</Typography.Title>
+        <Typography.Title level={4}>More rooms in this design</Typography.Title>
         <Flex
           style={{
             whiteSpace: "nowrap",

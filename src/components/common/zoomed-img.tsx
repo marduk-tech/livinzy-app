@@ -43,7 +43,6 @@ const ZoomedImg: React.FC<ZoomedImgProps> = ({
       style={{
         width: containerSize.width,
         height: containerSize.height,
-        position: "relative",
       }}
     >
       <div
@@ -56,10 +55,25 @@ const ZoomedImg: React.FC<ZoomedImgProps> = ({
           backgroundPosition: `${backgroundPosX}% ${backgroundPosY}%`,
           backgroundSize: "cover",
           position: "relative",
-          animation: "zoom-animation 7s infinite ease-in-out",
         }}
-      ></div>
-      {label && (
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: `${((centerY / imageSize.height) * containerHeight).toFixed(2)}px`,
+            left: `${((centerX / imageSize.width) * containerWidth).toFixed(2)}px`,
+            backgroundColor: COLORS.primaryColor,
+            border: "4px solid",
+            borderColor: "white",
+
+            width: "24px",
+            height: "24px",
+            borderRadius: "50%",
+            animation: "blink 2s infinite",
+          }}
+        ></div>
+      </div>
+      {/* {label && (
         <Typography.Text
           style={{
             position: "absolute",
@@ -72,17 +86,7 @@ const ZoomedImg: React.FC<ZoomedImgProps> = ({
         >
           {label}
         </Typography.Text>
-      )}
-      {/* <div  style={{
-            position: "absolute",
-            top: `${((centerY / imageSize.height) * 80).toFixed(2)}%`,
-            left: `${((centerX / imageSize.width) * 80).toFixed(2)}%`,
-            backgroundColor: COLORS.primaryColor,
-            width: "12px",
-            height: "12px",
-            borderRadius: "50%",
-            animation: "blink 1s infinite"
-          }}></div> */}
+      )} */}
     </div>
   );
 };

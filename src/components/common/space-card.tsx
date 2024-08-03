@@ -42,19 +42,14 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
     if (!space) {
       return;
     }
-
-    const spaceFixtures = space.fixtures.map((fixtureId: string) =>
-      fixtures.find((f: Fixture) => f._id == fixtureId)
-    );
-
     return (
       <Paragraph
         ellipsis={{ rows: 2 }}
         style={{ color: COLORS.textColorLight, marginBottom: 8 }}
       >
-        {spaceFixtures.map((fix, index: number) => {
+        {space.fixtures.map((fix: Fixture, index: number) => {
           return `${fix!.fixtureType?.fixtureType || fix!.fixtureType?.fixtureType}${
-            spaceFixtures.length === index + 1 ? "" : ", "
+            space.fixtures.length === index + 1 ? "" : ", "
           }`;
         })}
       </Paragraph>

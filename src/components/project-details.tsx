@@ -35,8 +35,6 @@ import { maxDesktopWidth } from "../libs/constants";
 import { useDevice } from "../libs/device";
 import {
   DesignerIcon,
-  DesignerNoteIcon,
-  PhotosIcon,
   RupeesIcon,
 } from "../libs/icons";
 import { queryKeys } from "../libs/react-query/constants";
@@ -122,17 +120,13 @@ const ProjectDetails: React.FC = () => {
    */
   const renderSpaces = (validSpaces: Space[]) => {
     return (
-      <Flex style={{ flexWrap: "wrap", margin: "auto", padding: 8 }} gap={12}>
+      <Flex style={{ flexWrap: "wrap", margin: "auto", padding: 8, width: "100%" }} gap={12}>
         {" "}
         {validSpaces.map((space: Space) => {
-          const spaceSlides = slides!.filter((s: Slide) =>
-            s.spaces!.includes(space!._id!)
-          );
-
           return (
             <SpaceCard
               space={space}
-              slides={spaceSlides}
+              slides={space.slides}
               projectId={projectId!}
               fixtures={fixtures}
             ></SpaceCard>
@@ -185,7 +179,7 @@ const ProjectDetails: React.FC = () => {
 
   return (
     <Flex
-      vertical
+      vertical={isMobile}
       style={{
         maxWidth: isMobile ? "100%" : maxDesktopWidth,
         width: "100%",
@@ -194,9 +188,7 @@ const ProjectDetails: React.FC = () => {
         overflow: "hidden",
       }}
     >
-      {/* The header bar including name, one liner, tags */}
-
-      <div style={{ position: "relative" }}>
+      <div style={{ position: "relative", width: isMobile ? "100%": "50%" }}>
         <Carousel
           autoplay={true}
           ref={slidesCarouselRef}
@@ -267,172 +259,167 @@ const ProjectDetails: React.FC = () => {
         </div>
       </div>
 
-      <Flex
-        vertical
-        style={{
-          padding: 16,
-          paddingTop: 24,
-        }}
-        gap={12}
-      >
-        <Flex justify="space-between">
-          <Flex vertical gap={5}>
-            <Typography.Title level={2} style={{ margin: 0 }}>
-              {projectData.name}
-            </Typography.Title>
-            <Flex
-              gap={4}
-              style={{
-                fontSize: 14,
-                color: COLORS.textColorMedium,
-                fontFamily: FONTS.regular,
-              }}
-            >
-              {projectData.homeDetails?.size} sqft ·{" "}
-              {projectData.homeDetails?.homeType.homeType!}
-            </Flex>
-          </Flex>
-
-          {/* <Typography.Title
-            level={4}
-            style={{ margin: 0 }}
-          >{`₹${randomPrice} L`}</Typography.Title> */}
-        </Flex>
-
+      <Flex vertical>
+        {/* The header bar including name, one liner, tags */}
         <Flex
           vertical
           style={{
-            paddingBottom: 24,
-            borderBottom: "1px solid",
-            borderBottomColor: COLORS.borderColorDark,
+            padding: 16,
+            paddingTop: 24,
           }}
+          gap={12}
         >
-          {projectData.oneLiner && (
-            <Paragraph
-              ellipsis={{ rows: 3, expandable: true, symbol: "More" }}
-              style={{ color: COLORS.textColorMedium }}
-            >
-              {projectData.oneLiner!}
-            </Paragraph>
-          )}
+          <Flex justify="space-between">
+            <Flex vertical gap={5}>
+              <Typography.Title level={2} style={{ margin: 0 }}>
+                {projectData.name}
+              </Typography.Title>
+              <Flex
+                gap={4}
+                style={{
+                  fontSize: 14,
+                  color: COLORS.textColorMedium,
+                  fontFamily: FONTS.regular,
+                }}
+              >
+                {projectData.homeDetails?.size} sqft ·{" "}
+                {projectData.homeDetails?.homeType.homeType!}
+              </Flex>
+            </Flex>
 
-          <Flex style={{ marginTop: 8 }}>
-            <Button
-              icon={<RupeesIcon></RupeesIcon>}
-              type="link"
-              onClick={() => {
-                setIsCostDialogOpen(true);
-              }}
-              style={{
-                padding: 0,
-                paddingRight: 16,
-                height: 32,
-                color: COLORS.textColorDark,
-              }}
-            >
-              Cost
-            </Button>
-            <Button
-              icon={<DesignerIcon></DesignerIcon>}
-              type="link"
-              style={{
-                padding: 0,
-                paddingRight: 16,
-                height: 32,
-                color: COLORS.textColorDark,
-              }}
-            >
-              Designer Info
-            </Button>
+            {/* <Typography.Title
+            level={4}
+            style={{ margin: 0 }}
+          >{`₹${randomPrice} L`}</Typography.Title> */}
           </Flex>
-        </Flex>
-      </Flex>
 
-      <Row
-        gutter={[24, 40]}
-        style={{
-          padding: 16,
-          marginTop: 10,
-        }}
-      >
-        {renderSpaces(validSpaces)}
-      </Row>
-      <Modal
-        title="Costing Details"
-        open={isCostDialogOpen}
-        closable={true}
-        onCancel={() => {
-          setIsCostDialogOpen(false);
-        }}
-        footer={() => <></>}
-      >
-        <Flex vertical style={{ margin: "16px 0" }}>
-          <Typography.Text style={{ textTransform: "uppercase" }}>
-            Total Cost
-          </Typography.Text>
-          <Typography.Title level={3} style={{ margin: 0 }}>
-            {formatCost(
-              spaces.reduce((accumulator: number, space: Space) => {
-                return accumulator + (space.cost || 0);
-              }, 0)
-            )}
-          </Typography.Title>
-        </Flex>
-        <div
-          style={{
-            overflow: "hidden",
-            borderRadius: "10px",
-            border: "1px solid",
-            boxShadow: 'inset 0 0 0 1px black',
-            borderColor: COLORS.borderColorDark,
-          }}
-        >
-          <table
+          <Flex
+            vertical
             style={{
-              borderCollapse: "separate",
-              borderSpacing: 0,
-              width: "100%",
+              paddingBottom: 24,
+              borderBottom: "1px solid",
+              borderBottomColor: COLORS.borderColorDark,
             }}
           >
-            <thead>
-              <tr>
-                <th
-                  style={{
-                    border: "1px solid",
-                    padding: "8px",
-                    textAlign: "left",
-                  }}
-                >
-                  Fixture
-                </th>
-                <th
-                  style={{
-                    border: "1px solid",
-                    padding: "8px",
-                    textAlign: "left",
-                  }}
-                >
-                  Cost
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {spaces!.map((space: Space, index: number) => {
-                return (
-                  <tr key={index}>
-                    <td style={{ border: "1px solid black", padding: "8px" }}>
-                      {space.name}
-                    </td>
-                    <td
-                      style={{ border: "1px solid black", padding: "8px" }}
-                    >{`${formatCost(space.cost || 0)}`}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </Modal>
+            {projectData.oneLiner && (
+              <Paragraph
+                ellipsis={{ rows: 3, expandable: true, symbol: "More" }}
+                style={{ color: COLORS.textColorMedium }}
+              >
+                {projectData.oneLiner!}
+              </Paragraph>
+            )}
+
+            <Flex style={{ marginTop: 8 }}>
+              <Button
+                icon={<RupeesIcon></RupeesIcon>}
+                type="link"
+                onClick={() => {
+                  setIsCostDialogOpen(true);
+                }}
+                style={{
+                  padding: 0,
+                  paddingRight: 16,
+                  height: 32,
+                  color: COLORS.textColorDark,
+                }}
+              >
+                Cost
+              </Button>
+              <Button
+                icon={<DesignerIcon></DesignerIcon>}
+                type="link"
+                style={{
+                  padding: 0,
+                  paddingRight: 16,
+                  height: 32,
+                  color: COLORS.textColorDark,
+                }}
+              >
+                Designer Info
+              </Button>
+            </Flex>
+          </Flex>
+        </Flex>
+
+          {renderSpaces(validSpaces)}
+        <Modal
+          title="Costing Details"
+          open={isCostDialogOpen}
+          closable={true}
+          onCancel={() => {
+            setIsCostDialogOpen(false);
+          }}
+          footer={() => <></>}
+        >
+          <Flex vertical style={{ margin: "16px 0" }}>
+            <Typography.Text style={{ textTransform: "uppercase" }}>
+              Total Cost
+            </Typography.Text>
+            <Typography.Title level={3} style={{ margin: 0 }}>
+              {formatCost(
+                spaces.reduce((accumulator: number, space: Space) => {
+                  return accumulator + (space.cost || 0);
+                }, 0)
+              )}
+            </Typography.Title>
+          </Flex>
+          <div
+            style={{
+              overflow: "hidden",
+              borderRadius: "10px",
+              border: "1px solid",
+              boxShadow: "inset 0 0 0 1px black",
+              borderColor: COLORS.borderColorDark,
+            }}
+          >
+            <table
+              style={{
+                borderCollapse: "separate",
+                borderSpacing: 0,
+                width: "100%",
+              }}
+            >
+              <thead>
+                <tr>
+                  <th
+                    style={{
+                      border: "1px solid",
+                      padding: "8px",
+                      textAlign: "left",
+                    }}
+                  >
+                    Fixture
+                  </th>
+                  <th
+                    style={{
+                      border: "1px solid",
+                      padding: "8px",
+                      textAlign: "left",
+                    }}
+                  >
+                    Cost
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {spaces!.map((space: Space, index: number) => {
+                  return (
+                    <tr key={index}>
+                      <td style={{ border: "1px solid black", padding: "8px" }}>
+                        {space.name}
+                      </td>
+                      <td
+                        style={{ border: "1px solid black", padding: "8px" }}
+                      >{`${formatCost(space.cost || 0)}`}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Modal>
+      </Flex>
     </Flex>
   );
 };
