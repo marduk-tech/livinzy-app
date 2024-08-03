@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import { useFetchSlidesByProject } from "../hooks/use-slides";
-import { useFetchSpacesByProject } from "../hooks/use-spaces";
-import { useFetchProject } from "../hooks/use-projects";
+import {
+  ArrowRightOutlined,
+  HeartFilled,
+  HeartOutlined,
+} from "@ant-design/icons";
 import {
   Button,
   Carousel,
@@ -10,31 +10,51 @@ import {
   Drawer,
   Flex,
   Image,
+  message,
   Modal,
   Popover,
   Row,
   Segmented,
+  Spin,
   Tabs,
   TabsProps,
   Typography,
 } from "antd";
-import { COLORS, FONTS } from "../styles/style-constants";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useFetchFixturesByProject } from "../hooks/use-fixtures";
+import useParentDimensions from "../hooks/use-parent-dimension";
+import { useFetchProject } from "../hooks/use-projects";
+import { useFetchSlidesByProject } from "../hooks/use-slides";
+import { useFetchSpacesByProject } from "../hooks/use-spaces";
+import { useUser } from "../hooks/use-user";
+import { Fixture } from "../interfaces/Fixture";
 import { Slide } from "../interfaces/Slide";
 import { Space } from "../interfaces/Space";
-import { useFetchFixturesByProject } from "../hooks/use-fixtures";
-import { useDevice } from "../libs/device";
-import { Fixture } from "../interfaces/Fixture";
-import { BorderOuterOutlined } from "@ant-design/icons";
-import ZoomedImage from "./common/zoomed-img";
-import useParentDimensions from "../hooks/use-parent-dimension";
 import { maxDesktopWidth } from "../libs/constants";
-import { DesignerNoteIcon } from "../libs/icons";
+import { useDevice } from "../libs/device";
+import {
+  DesignerIcon,
+  RupeesIcon,
+} from "../libs/icons";
+import { queryKeys } from "../libs/react-query/constants";
+import { queryClient } from "../libs/react-query/query-client";
+import { COLORS, FONTS } from "../styles/style-constants";
+import ZoomedImage from "./common/zoomed-img";
+import { SpaceCard } from "./common/space-card";
+import Paragraph from "antd/es/typography/Paragraph";
+import { formatCost } from "../libs/lvnzy-helper";
+
+const randomPrice = (Math.random() * (15 - 8) + 8).toFixed(1);
 
 const ProjectDetails: React.FC = () => {
+  const navigate = useNavigate();
+
   const { projectId } = useParams();
   const { isMobile } = useDevice();
   const slidesCarouselRef = useRef(null);
   const { ref, dimensions } = useParentDimensions();
+  const [isCostDialogOpen, setIsCostDialogOpen] = useState(false);
 
   const { data: projectData, isLoading: projectDataLoading } = useFetchProject(
     projectId!
@@ -46,9 +66,13 @@ const ProjectDetails: React.FC = () => {
     projectId!
   );
 
+  const { useUpdateUser, user } = useUser();
+  const updateUserMutation = useUpdateUser();
+
   const [slidesSortedBySpace, setSlidesSortedBySpace] = useState<Slide[]>();
   const [currentSlide, setCurrentSlide] = useState<Slide>();
   const [fixtureSelected, setFixtureSelected] = useState<Fixture>();
+  const [activeSlide, setActiveSlide] = useState(0);
 
   const [activeSpace, setActiveSpace] = useState<string>();
   const { data: fixtures, isLoading: fixturesLoading } =
@@ -58,6 +82,7 @@ const ProjectDetails: React.FC = () => {
     console.log(currentSlide);
     const slideCurrent = slidesSortedBySpace![currentSlide];
     setCurrentSlide(slideCurrent);
+    setActiveSlide(currentSlide);
   };
 
   useEffect(() => {
@@ -88,267 +113,29 @@ const ProjectDetails: React.FC = () => {
   const renderTabBar: TabsProps["renderTabBar"] = (props, DefaultTabBar) => (
     <DefaultTabBar {...props} style={{ margin: 0, padding: "8" }} />
   );
+
   /**
    * Displays all spaces in a tabbed layout
    * @returns
    */
   const renderSpaces = (validSpaces: Space[]) => {
-    return validSpaces.map((space: Space) => {
-      return (
-        <Flex
-          vertical
-          style={{
-            padding: 16,
-            margin: 16,
-            borderRadius: 16,
-            border: "2px solid",
-            borderColor: COLORS.borderColor,
-            backgroundColor: "white",
-          }}
-        >
-          <Flex gap={16} align="flex-start">
-            <Image
-              preview={false}
-              src={space.spaceType.icon || "../../gen-room.png"}
-              width={60}
-              style={{ filter: COLORS.textColorDarkFilter }}
-            />
-            <Flex vertical>
-              <Typography.Title level={4} style={{ margin: 0 }}>
-                {space.name}
-              </Typography.Title>
-              {space.cost && (
-                <Typography.Text
-                  style={{
-                    margin: 0,
-                    fontFamily: FONTS.regular,
-                    fontSize: 18,
-                    marginTop: -4,
-                    color: COLORS.textColorMedium,
-                  }}
-                >
-                  ₹{space.cost}
-                </Typography.Text>
-              )}
-            </Flex>
-            {space.oneLiner && (
-              <Flex style={{ marginLeft: "auto", marginTop: 4 }}>
-                <Popover
-                  content={
-                    <Flex vertical gap={8}>
-                      <DesignerNoteIcon></DesignerNoteIcon>
-                      <Typography.Text>{space.oneLiner}</Typography.Text>
-                    </Flex>
-                  }
-                  title=""
-                >
-                  <Button
-                    type="link"
-                    style={{ color: COLORS.primaryColor }}
-                    icon={<DesignerNoteIcon></DesignerNoteIcon>}
-                  ></Button>
-                </Popover>
-              </Flex>
-            )}
-
-            {/* <InfoCircleOutlined
-                  style={{ color: "white" }}
-                ></InfoCircleOutlined> */}
-          </Flex>
-          <Flex
-            gap={16}
-            style={{
-              borderRadius: 16,
-              marginTop: 24,
-              overflowX: "scroll",
-              scrollbarWidth: "none" /* Firefox */,
-              msOverflowStyle: "none" /* IE and Edge */,
-            }}
-          >
-            {slides!
-              .filter((s: Slide) => s.spaces!.includes(space!._id!))
-              .map((s: Slide) => {
-                return (
-                  <div>
-                    <div
-                      style={{
-                        backgroundImage: `url(${s!.url})`,
-                        backgroundPosition: "center",
-                        backgroundSize: "cover",
-                        backgroundRepeat: "no-repeat",
-                        borderRadius: 16,
-                        width: Math.min(window.innerWidth, 400),
-                        height: 300,
-                        border: "1px solid",
-                        borderColor: COLORS.borderColor,
-                        flex: "none",
-                      }}
-                    ></div>
-                  </div>
-                );
-              })}
-          </Flex>
-          {renderSpaceFixtures(space._id!)}
-        </Flex>
-      );
-    });
-  };
-
-  const renderSpaceFixtures = (spaceId: string) => {
-    if (!spaceId) {
-      return;
-    }
-    const spaceSlides = slides?.filter(
-      (s: Slide) => s.spaces?.includes(spaceId)
-    );
-    const uniqueFixturesIds: string[] = [];
-    spaceSlides?.forEach((s: Slide) => {
-      s.fixtures!.forEach((f: string) => {
-        if (!uniqueFixturesIds.includes(f)) {
-          uniqueFixturesIds.push(f);
-        }
-      });
-    });
-
-    const spaceFixtures = uniqueFixturesIds
-      .map((f: string) => fixtures.find((fo: Fixture) => fo._id == f))
-      .filter((f: Fixture) => !!f);
-
     return (
-      <Flex wrap="wrap" style={{ marginTop: 16 }} gap={16}>
-        {spaceFixtures.map((fix: Fixture, index: number) => {
+      <Flex style={{ flexWrap: "wrap", margin: "auto", padding: 8, width: "100%" }} gap={12}>
+        {" "}
+        {validSpaces.map((space: Space) => {
           return (
-            <Flex
-              style={{
-                padding: "8px 0",
-                width: `calc(${isMobile ? "50%" : "300px"} - 16px)`,
-                cursor: "pointer",
-                borderBottomColor: COLORS.borderColor,
-              }}
-              onClick={() => {
-                setActiveSpace(spaceId);
-                setFixtureSelected(fix);
-              }}
-              vertical
-            >
-              <Typography.Text
-                style={{ color: COLORS.textColorLight, fontSize: "70%" }}
-              >
-                {fix.fixtureType
-                  ? fix.fixtureType?.fixtureType.toUpperCase()
-                  : ""}
-              </Typography.Text>
-              <Typography.Title level={5} style={{ margin: 0 }}>
-                {fix.designName || fix.fixtureType?.fixtureType}
-              </Typography.Title>
-            </Flex>
+            <SpaceCard
+              space={space}
+              slides={space.slides}
+              projectId={projectId!}
+              fixtures={fixtures}
+            ></SpaceCard>
           );
         })}
-        <Modal
-          width={isMobile ? "100%" : 600}
-          open={!!fixtureSelected}
-          footer={[]}
-          onCancel={() => {
-            setFixtureSelected(undefined);
-          }}
-        >
-          {fixtureSelected && (
-            <Flex vertical style={{ width: "100%" }}>
-              <Flex align="center">
-                <Typography.Title style={{ margin: 0 }} level={3}>
-                  {fixtureSelected?.designName ||
-                    fixtureSelected?.fixtureType?.fixtureType}
-                </Typography.Title>
-              </Flex>
-              <Flex
-                gap={8}
-                style={{
-                  padding: "4px 12px",
-                  alignSelf: "flex-start",
-                  marginTop: 16,
-                  borderRadius: 16,
-                  border: "1px solid",
-                  borderColor: COLORS.borderColor,
-                  marginBottom: 16,
-                }}
-                wrap="wrap"
-                align="flex-end"
-              >
-                <Image
-                  height={28}
-                  src={
-                    spaces.find((s: Space) => s._id == activeSpace).spaceType
-                      .icon
-                  }
-                  style={{ filter: COLORS.textColorMediumFilter }}
-                  preview={false}
-                ></Image>
-                <Typography.Text style={{ color: COLORS.textColorMedium }}>
-                  {spaces.find((s: Space) => s._id == activeSpace).name}
-                </Typography.Text>
-              </Flex>
-              <Carousel style={{ borderRadius: 16 }}>
-                {slides!
-                  .filter((s: Slide) =>
-                    s.fixtures!.includes(fixtureSelected!._id!)
-                  )
-                  .map((s: Slide) => {
-                    return fixtureSelected.imageBounds && false ? (
-                      <ZoomedImage
-                        imageUrl={s.url}
-                        imgHeight={
-                          fixtureSelected!.imageBounds?.imageSize.height!
-                        }
-                        imgWidth={
-                          fixtureSelected!.imageBounds?.imageSize.width!
-                        }
-                        boxStartX={fixtureSelected!.imageBounds?.startPoint.x!}
-                        boxStartY={fixtureSelected!.imageBounds?.startPoint.y!}
-                        boxEndX={fixtureSelected!.imageBounds?.endPoint.y!}
-                        boxEndY={fixtureSelected!.imageBounds?.endPoint.y!}
-                        divWidth={
-                          isMobile ? window.innerWidth : dimensions.width
-                        }
-                        divHeight={300}
-                      ></ZoomedImage>
-                    ) : (
-                      <div>
-                        <div
-                          style={{
-                            backgroundImage: `url(${s!.url})`,
-                            backgroundPosition: "center",
-                            backgroundSize: "cover",
-                            backgroundRepeat: "no-repeat",
-                            borderRadius: 16,
-                            width: "100%",
-                            height: "300px",
-                            border: "1px solid",
-                            borderColor: COLORS.borderColor,
-                            flex: "none",
-                          }}
-                        ></div>
-                      </div>
-                    );
-                  })}
-              </Carousel>
-              {fixtureSelected.description && (
-                <Flex vertical style={{ marginTop: 24 }}>
-                  <DesignerNoteIcon></DesignerNoteIcon>
-                  <Typography.Text style={{color: COLORS.textColorMedium}}>
-                    {fixtureSelected.description}
-                  </Typography.Text>
-                </Flex>
-              )}
-              {/* <Typography.Text style={{ marginTop: 16, fontSize: 20 }}>
-                {fixtureSelected?.description ||
-                  fixtureSelected!.fixtureType!.description}
-              </Typography.Text> */}
-            </Flex>
-          )}
-        </Modal>
       </Flex>
     );
   };
+
   if (
     fixturesLoading ||
     slidesLoading ||
@@ -363,163 +150,276 @@ const ProjectDetails: React.FC = () => {
     s2._id!.localeCompare(s1._id!)
   );
 
+  const handleFavToggle = async () => {
+    if (!user) {
+      return navigate("/auth/login");
+    }
+
+    const { _id, favoriteProjects = [] } = user;
+
+    const updatedFavProjects = favoriteProjects.includes(projectId as string)
+      ? favoriteProjects.filter((id) => id.toString() !== projectId)
+      : [...favoriteProjects, projectId];
+
+    try {
+      await updateUserMutation.mutateAsync({
+        id: _id,
+        data: {
+          favoriteProjects: updatedFavProjects as string[],
+        },
+      });
+    } catch (error) {
+      message.error("Please try again later");
+    }
+
+    await queryClient.invalidateQueries({
+      queryKey: [queryKeys.user],
+    });
+  };
+
   return (
     <Flex
-      vertical
+      vertical={isMobile}
       style={{
         maxWidth: isMobile ? "100%" : maxDesktopWidth,
         width: "100%",
         margin: "auto",
         backgroundColor: COLORS.bgColor,
+        overflow: "hidden",
       }}
     >
-      {/* The header bar including name, one liner, tags */}
+      <div style={{ position: "relative", width: isMobile ? "100%": "50%" }}>
+        <Carousel
+          autoplay={true}
+          ref={slidesCarouselRef}
+          afterChange={onSlideChange}
+          style={{ width: "100%", margin: "auto" }}
+        >
+          {projectData?.previewImageUrl && (
+            <div>
+              <div
+                style={{
+                  backgroundImage: `url(${projectData.previewImageUrl})`,
+                  backgroundPosition: "center",
+                  backgroundSize: "cover",
+                  backgroundRepeat: "no-repeat",
+                  width: "100%",
+                  height: isMobile
+                    ? "200px"
+                    : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
+                      1.33333,
+                  border: "1px solid",
+                  borderColor: COLORS.borderColor,
+                  flex: "none",
+                }}
+              ></div>
+            </div>
+          )}
+          {slidesSortedBySpace &&
+            slidesSortedBySpace!.map((sl: Slide) => {
+              return (
+                <div>
+                  <div
+                    style={{
+                      backgroundImage: `url(${sl!.url})`,
+                      backgroundPosition: "center",
+                      backgroundSize: "cover",
+                      backgroundRepeat: "no-repeat",
+                      width: "100%",
+                      height: isMobile
+                        ? `200px`
+                        : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
+                          1.33333,
+                      border: "1px solid",
+                      borderColor: COLORS.borderColor,
+                      flex: "none",
+                    }}
+                  ></div>
+                </div>
+              );
+            })}
+        </Carousel>
 
-      <Carousel
-        autoplay={true}
-        ref={slidesCarouselRef}
-        afterChange={onSlideChange}
-        style={{ width: "100%", margin: "auto" }}
-      >
-        {projectData?.previewImageUrl && (
-          <div>
-            <div
-              style={{
-                backgroundImage: `url(${projectData.previewImageUrl})`,
-                backgroundPosition: "center",
-                backgroundSize: "cover",
-                backgroundRepeat: "no-repeat",
-                width: "100%",
-                height: isMobile
-                  ? `${window.innerWidth}px`
-                  : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
-                    1.33333,
-                border: "1px solid",
-                borderColor: COLORS.borderColor,
-                flex: "none",
-              }}
-            ></div>
-          </div>
-        )}
-        {slidesSortedBySpace &&
-          slidesSortedBySpace!.map((sl: Slide) => {
-            return (
-              <div>
-                <div
-                  style={{
-                    backgroundImage: `url(${sl!.url})`,
-                    backgroundPosition: "center",
-                    backgroundSize: "cover",
-                    backgroundRepeat: "no-repeat",
-                    width: "100%",
-                    height: isMobile
-                      ? `${window.innerWidth}px`
-                      : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
-                        1.33333,
-                    border: "1px solid",
-                    borderColor: COLORS.borderColor,
-                    flex: "none",
-                  }}
-                ></div>
-              </div>
-            );
-          })}
-      </Carousel>
+        <div
+          style={{
+            position: "absolute",
+            bottom: 20,
+            right: 15,
+          }}
+        >
+          <Link to={`/project/${projectId}/images`}>
+            <Button size="small" type="default">
+              {activeSlide + 1} /{" "}
+              {/* Add additional 1 to account for preview image */}
+              {slidesSortedBySpace?.length &&
+                slidesSortedBySpace.length + 1}{" "}
+              <ArrowRightOutlined style={{ transform: "rotate(-45deg)" }} />
+            </Button>
+          </Link>
+        </div>
+      </div>
 
-      <Flex vertical style={{ padding: 16 }} gap={8}>
-        <Typography.Title level={3} style={{ margin: 0 }}>
-          {projectData.name}
-        </Typography.Title>
-
-        <Flex vertical>
-          <Flex gap={8} style={{ marginTop: 16 }}>
-            <Image
-              src={projectData.designerId.profilePicture}
-              width={42}
-              height="auto"
-              style={{ borderRadius: "50%" }}
-              preview={false}
-            ></Image>
-            <Flex vertical>
-              <Typography.Text
-                style={{ color: COLORS.textColorLight, fontSize: "70%" }}
-              >
-                Designed By
-              </Typography.Text>
-              <Typography.Title level={5} style={{ margin: 0, marginTop: -4 }}>
-                {projectData.designerId.designerName}
+      <Flex vertical>
+        {/* The header bar including name, one liner, tags */}
+        <Flex
+          vertical
+          style={{
+            padding: 16,
+            paddingTop: 24,
+          }}
+          gap={12}
+        >
+          <Flex justify="space-between">
+            <Flex vertical gap={5}>
+              <Typography.Title level={2} style={{ margin: 0 }}>
+                {projectData.name}
               </Typography.Title>
+              <Flex
+                gap={4}
+                style={{
+                  fontSize: 14,
+                  color: COLORS.textColorMedium,
+                  fontFamily: FONTS.regular,
+                }}
+              >
+                {projectData.homeDetails?.size} sqft ·{" "}
+                {projectData.homeDetails?.homeType.homeType!}
+              </Flex>
             </Flex>
+
+            {/* <Typography.Title
+            level={4}
+            style={{ margin: 0 }}
+          >{`₹${randomPrice} L`}</Typography.Title> */}
           </Flex>
 
           <Flex
             vertical
             style={{
+              paddingBottom: 24,
               borderBottom: "1px solid",
-              borderTop: "1px solid",
-              marginTop: 16,
-              padding: "16px 0",
               borderBottomColor: COLORS.borderColorDark,
-              borderTopColor: COLORS.borderColorDark,
             }}
-            gap={8}
           >
-            <Flex gap={4} style={{ color: COLORS.textColorDark }}>
-              {projectData.homeDetails?.homeType.homeType!} ·{" "}
-              {projectData.homeDetails?.size} sqft
-            </Flex>
             {projectData.oneLiner && (
-              <Typography.Text
-                style={{
-                  margin: 0,
-                  lineHeight: "120%",
-                  color: COLORS.textColorMedium,
-                  fontFamily: FONTS.regular,
-                }}
+              <Paragraph
+                ellipsis={{ rows: 3, expandable: true, symbol: "More" }}
+                style={{ color: COLORS.textColorMedium }}
               >
                 {projectData.oneLiner!}
-              </Typography.Text>
+              </Paragraph>
             )}
-            {/* <Row >
-              {validSpaces.map((space: Space) => {
-                return (
-                  <Col span={12}>
-                    <Flex vertical align="center" style={}>
-                      <Image
-                        width={80}
-                        height={80}
-                        src={space.spaceType.icon}
-                        style={{ filter: COLORS.textColorMediumFilter }}
-                      ></Image>
-                      <Typography.Text
-                        style={{
-                          color: COLORS.textColorMedium,
-                          fontSize: "80%",
-                        }}
-                      >
-                        {space.name}
-                      </Typography.Text>
-                    </Flex>
-                  </Col>
-                );
-              })}
-            </Row> */}
+
+            <Flex style={{ marginTop: 8 }}>
+              <Button
+                icon={<RupeesIcon></RupeesIcon>}
+                type="link"
+                onClick={() => {
+                  setIsCostDialogOpen(true);
+                }}
+                style={{
+                  padding: 0,
+                  paddingRight: 16,
+                  height: 32,
+                  color: COLORS.textColorDark,
+                }}
+              >
+                Cost
+              </Button>
+              <Button
+                icon={<DesignerIcon></DesignerIcon>}
+                type="link"
+                style={{
+                  padding: 0,
+                  paddingRight: 16,
+                  height: 32,
+                  color: COLORS.textColorDark,
+                }}
+              >
+                Designer Info
+              </Button>
+            </Flex>
           </Flex>
         </Flex>
-      </Flex>
 
-      <Flex align="center" style={{ marginTop: 16, padding: 16 }} gap={16}>
-        <BorderOuterOutlined
-          style={{ transform: "scale(1.4)", color: COLORS.textColorMedium }}
-        />
-        <Typography.Title
-          level={4}
-          style={{ margin: 0, marginTop: 0, color: COLORS.textColorMedium }}
+          {renderSpaces(validSpaces)}
+        <Modal
+          title="Costing Details"
+          open={isCostDialogOpen}
+          closable={true}
+          onCancel={() => {
+            setIsCostDialogOpen(false);
+          }}
+          footer={() => <></>}
         >
-          Spaces Designed
-        </Typography.Title>
+          <Flex vertical style={{ margin: "16px 0" }}>
+            <Typography.Text style={{ textTransform: "uppercase" }}>
+              Total Cost
+            </Typography.Text>
+            <Typography.Title level={3} style={{ margin: 0 }}>
+              {formatCost(
+                spaces.reduce((accumulator: number, space: Space) => {
+                  return accumulator + (space.cost || 0);
+                }, 0)
+              )}
+            </Typography.Title>
+          </Flex>
+          <div
+            style={{
+              overflow: "hidden",
+              borderRadius: "10px",
+              border: "1px solid",
+              boxShadow: "inset 0 0 0 1px black",
+              borderColor: COLORS.borderColorDark,
+            }}
+          >
+            <table
+              style={{
+                borderCollapse: "separate",
+                borderSpacing: 0,
+                width: "100%",
+              }}
+            >
+              <thead>
+                <tr>
+                  <th
+                    style={{
+                      border: "1px solid",
+                      padding: "8px",
+                      textAlign: "left",
+                    }}
+                  >
+                    Fixture
+                  </th>
+                  <th
+                    style={{
+                      border: "1px solid",
+                      padding: "8px",
+                      textAlign: "left",
+                    }}
+                  >
+                    Cost
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {spaces!.map((space: Space, index: number) => {
+                  return (
+                    <tr key={index}>
+                      <td style={{ border: "1px solid black", padding: "8px" }}>
+                        {space.name}
+                      </td>
+                      <td
+                        style={{ border: "1px solid black", padding: "8px" }}
+                      >{`${formatCost(space.cost || 0)}`}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Modal>
       </Flex>
-      {renderSpaces(validSpaces)}
     </Flex>
   );
 };

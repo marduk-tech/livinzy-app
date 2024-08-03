@@ -1,3 +1,9 @@
+export interface BoundingBox {
+  startPoint: { x: number; y: number };
+  endPoint: { x: number; y: number };
+  imageSize: { width: number; height: number };
+}
+
 export interface Fixture {
   _id?: string;
   fixtureType?: {
@@ -5,7 +11,7 @@ export interface Fixture {
     description: string;
     _id: string;
   };
-  cost?: Number;
+  cost?: number;
   designName?: string;
   description?: string;
   projectId?: string;
@@ -14,6 +20,7 @@ export interface Fixture {
     endPoint: { x: number; y: number };
     imageSize: { width: number; height: number };
   };
+  components: any[];
 }
 
 export interface FixtureFormData {
@@ -28,4 +35,9 @@ export interface FixtureFormData {
     endPoint: { x: number; y: number };
     imageSize: { width: number; height: number };
   };
+}
+
+export interface FixtureImageBounds {
+  fixtureId: string;
+  boundingBox: BoundingBox;
 }

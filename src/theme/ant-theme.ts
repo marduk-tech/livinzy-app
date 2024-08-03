@@ -11,6 +11,9 @@ export const antTheme: ThemeConfig = {
     fontSize: 16,
   },
   components: {
+    Button: {
+      colorLink: COLORS.primaryColor
+    },
     Tabs: {
       itemActiveColor: COLORS.primaryColor,
       horizontalItemPadding: "24px 8px",

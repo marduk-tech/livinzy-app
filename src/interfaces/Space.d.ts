@@ -1,3 +1,6 @@
+import { Fixture } from "./Fixture";
+import { Slide } from "./Slide";
+
 export interface Space {
   _id?: string;
   size: {
@@ -12,6 +15,8 @@ export interface Space {
     icon: string;
     _id: string;
   };
+  fixtures: Fixture[];
+  slides: Slide[];
   cost: number;
   projectId: string;
 }

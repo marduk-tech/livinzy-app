@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: 'Open Sauce Sans Medium';
-  src: url('../../fonts/OpenSauceSans-Medium.woff2') format('woff2');
+  src: url('/fonts/OpenSauceSans-Medium.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -10,10 +10,38 @@
 
 @font-face {
   font-family: 'Open Sauce Sans Regular';
-  src: url('../../fonts/OpenSauceSans-Regular.woff2') format('woff2');
+  src: url('/fonts/OpenSauceSans-Regular.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
+}
+
+
+@font-face {
+  font-family: 'Open Sauce Sans Bold';
+  src: url('/fonts/OpenSauceSans-Bold.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* latin-ext */
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 100 1000;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/dmsans/v15/rP2Hp2ywxg089UriCZ2IHTWEBlwu8Q.woff2) format('woff2');
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 100 1000;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/dmsans/v15/rP2Hp2ywxg089UriCZOIHTWEBlw.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 
@@ -23,7 +51,40 @@ $primary-theme: #29e0e0;
 body {
   margin: 0;
   padding: 0;
-  font-family: "Open Sauce Sans Medium";
+  font-family: "DM Sans";
   background-color: #fafbfb;
   /* Add any other styles you want to reset or modify */
+}
+
+button {
+  display: inline-flex !important;
+}
+
+
+@keyframes zoom-animation {
+  0% {
+    transform: scale(1.0);
+    -ms-transform: scale(1.0);
+    -webkit-transform: scale(1.0);
+    -o-transform: scale(1.0);
+    -moz-transform: scale(1.0);
+  }
+
+  100% {
+    transform: scale(2);
+    -ms-transform: scale(2);
+    -webkit-transform: scale(2);
+    -o-transform: scale(2);
+    -moz-transform: scale(2);
+  }
+}
+
+/* Keyframes for the blinking effect */
+@keyframes blink {
+  0%, 100% {
+    opacity: 1; /* Fully visible */
+  }
+  50% {
+    opacity: 0; /* Fully invisible */
+  }
 }
