@@ -33,10 +33,7 @@ import { Slide } from "../interfaces/Slide";
 import { Space } from "../interfaces/Space";
 import { maxDesktopWidth } from "../libs/constants";
 import { useDevice } from "../libs/device";
-import {
-  DesignerIcon,
-  RupeesIcon,
-} from "../libs/icons";
+import { DesignerIcon, RupeesIcon } from "../libs/icons";
 import { queryKeys } from "../libs/react-query/constants";
 import { queryClient } from "../libs/react-query/query-client";
 import { COLORS, FONTS } from "../styles/style-constants";
@@ -120,7 +117,10 @@ const ProjectDetails: React.FC = () => {
    */
   const renderSpaces = (validSpaces: Space[]) => {
     return (
-      <Flex style={{ flexWrap: "wrap", margin: "auto", padding: 8, width: "100%" }} gap={12}>
+      <Flex
+        style={{ flexWrap: "wrap", margin: "auto", width: "100%" }}
+        gap={12}
+      >
         {" "}
         {validSpaces.map((space: Space) => {
           return (
@@ -188,7 +188,7 @@ const ProjectDetails: React.FC = () => {
         overflow: "hidden",
       }}
     >
-      <div style={{ position: "relative", width: isMobile ? "100%": "50%" }}>
+      <div style={{ position: "relative", width: isMobile ? "100%" : "50%" }}>
         <Carousel
           autoplay={true}
           ref={slidesCarouselRef}
@@ -310,7 +310,7 @@ const ProjectDetails: React.FC = () => {
               </Paragraph>
             )}
 
-            <Flex style={{ marginTop: 8 }}>
+            <Flex style={{ marginTop: 8 }} gap={8}>
               <Button
                 icon={<RupeesIcon></RupeesIcon>}
                 type="link"
@@ -341,8 +341,10 @@ const ProjectDetails: React.FC = () => {
             </Flex>
           </Flex>
         </Flex>
-
+        <Flex vertical style={{padding: "0 16px"}}>
+          <Typography.Title level={4}>All spaces in this design</Typography.Title>
           {renderSpaces(validSpaces)}
+        </Flex>
         <Modal
           title="Costing Details"
           open={isCostDialogOpen}

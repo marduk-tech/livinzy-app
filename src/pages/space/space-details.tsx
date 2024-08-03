@@ -15,7 +15,7 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useFetchFixturesByProject } from "../../hooks/use-fixtures";
 import useParentDimensions from "../../hooks/use-parent-dimension";
 import { useFetchProject } from "../../hooks/use-projects";
@@ -31,9 +31,11 @@ import { Space } from "../../interfaces/Space";
 import { maxDesktopWidth } from "../../libs/constants";
 import { useDevice } from "../../libs/device";
 import {
+  BackIcon,
   DesignerIcon,
   DesignerNoteIcon,
   FixtureIcon,
+  LikeIcon,
   PhotosIcon,
   RupeesIcon,
 } from "../../libs/icons";
@@ -47,8 +49,9 @@ const SpaceDetails: React.FC = () => {
   const { projectId, spaceId } = useParams();
   const { isMobile } = useDevice();
   const slidesCarouselRef = useRef(null);
-  const { ref, dimensions } = useParentDimensions();
   const [isCostDialogOpen, setIsCostDialogOpen] = useState(false);
+  const navigate = useNavigate();
+
 
   const { data: projectData, isLoading: projectDataLoading } = useFetchProject(
     projectId!
@@ -87,14 +90,14 @@ const SpaceDetails: React.FC = () => {
       return;
     }
     setSpaceSlides(spaceData.slides);
-  }, [spaceData])
+  }, [spaceData]);
 
   useEffect(() => {
     if (!slides) {
       return;
     }
-    const fixtureSlidesTemp = slides?.filter(
-      (s: Slide) => s.fixtures?.includes(fixtureSelected?._id!)
+    const fixtureSlidesTemp = slides?.filter((s: Slide) =>
+      s.fixtures?.includes(fixtureSelected?._id!)
     );
     setFixtureSlides(fixtureSlidesTemp);
     setActiveSlide(0);
@@ -134,7 +137,7 @@ const SpaceDetails: React.FC = () => {
 
     setSpaceFixtures(spaceFixtures);
     setFixtureSelected(spaceFixtures[0]);
-  }, [spaces, fixtures]);
+  }, [spaces, fixtures, spaceId]);
 
   /**
    * Filters out spaces which are not mapped to any image
@@ -173,8 +176,6 @@ const SpaceDetails: React.FC = () => {
       }}
     >
       {/* The header bar including name, one liner, tags */}
-
-      
 
       {/* The carousel for the space */}
       <div style={{ position: "relative" }}>
@@ -226,6 +227,20 @@ const SpaceDetails: React.FC = () => {
                 );
             })}
         </Carousel>
+
+        <Button
+          type="link"
+          onClick={() => {
+            navigate(`/project/${projectId}`);
+          }}
+          style={{ position: "fixed", top: 16, left: 16 }}
+          icon={<BackIcon></BackIcon>}
+        ></Button>
+        <Button
+          type="link"
+          style={{ position: "fixed", top: 16, right: 16 }}
+          icon={<LikeIcon></LikeIcon>}
+        ></Button>
 
         <div
           style={{
@@ -413,7 +428,7 @@ const SpaceDetails: React.FC = () => {
 
       {/* More from this project */}
       <Flex vertical style={{ padding: 16 }}>
-        <Typography.Title level={4}>More rooms in this design</Typography.Title>
+        <Typography.Title level={4}>More spaces from this design</Typography.Title>
         <Flex
           style={{
             whiteSpace: "nowrap",
@@ -425,7 +440,7 @@ const SpaceDetails: React.FC = () => {
           gap={16}
         >
           {" "}
-          {validSpaces.map((space: Space) => {
+          {validSpaces.filter((s: Space) => s._id !== spaceData._id).map((space: Space) => {
             const spaceSlides = slides!.filter((s: Slide) =>
               s.spaces!.includes(space!._id!)
             );

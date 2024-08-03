@@ -38,7 +38,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
     return value.toString();
   }
 
-  const renderSpaceFixtures = (space: Space) => {
+  const renderSpaceFixtures = () => {
     if (!space) {
       return;
     }
@@ -74,7 +74,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
         gap={16}
         align="flex-start"
         onClick={() => {
-          navigate(`/project/${projectId}/space/${space._id}`);
+          navigate(`/project/${projectId}/space/${space._id}`, {replace: true});
         }}
       >
         <Typography.Text
@@ -113,7 +113,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
             )} */}
           </Flex>
 
-          {!skipFixtures && renderSpaceFixtures(space)}
+          {!skipFixtures && renderSpaceFixtures()}
         </Flex>
       </Flex>
     </Flex>
