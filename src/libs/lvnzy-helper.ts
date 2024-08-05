@@ -1,18 +1,21 @@
 
 function formatCost(cost: number) {
     let formattedCost = "";
+    let updatedCost = 0, suffix = "", updatedCostUpper = 0;
     if (!cost) {
       return 0;
     }
     if (cost < 1000) {
-        formattedCost = `${Math.round(cost)}`;
+        updatedCost = Math.round(cost);
     }
     else if (cost > 1000 && cost < 100000) {
-        formattedCost = `${Math.round((cost/1000) * 10) / 10}K`;
+        updatedCost = Math.round((cost/1000) * 10) / 10;
+        suffix = "K";
     } else if (cost >= 100000 && cost < 10000000) {
-        formattedCost = `${Math.round((cost/100000) * 10) / 10}L`;
+        updatedCost = Math.round((cost/100000) * 10) / 10;
+        suffix = "L";
     }
-    return `₹${formattedCost}`;
+    return `₹${Math.round(updatedCost)}-${Math.ceil(updatedCost*1.1)} ${suffix}`;
   }
   
   export { formatCost };

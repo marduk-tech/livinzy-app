@@ -33,7 +33,7 @@ import { Slide } from "../interfaces/Slide";
 import { Space } from "../interfaces/Space";
 import { maxDesktopWidth } from "../libs/constants";
 import { useDevice } from "../libs/device";
-import { DesignerIcon, RupeesIcon } from "../libs/icons";
+import { DesignerIcon, HighlightsIcon, RupeesIcon, SpacesIcon } from "../libs/icons";
 import { queryKeys } from "../libs/react-query/constants";
 import { queryClient } from "../libs/react-query/query-client";
 import { COLORS, FONTS } from "../styles/style-constants";
@@ -75,12 +75,35 @@ const ProjectDetails: React.FC = () => {
   const { data: fixtures, isLoading: fixturesLoading } =
     useFetchFixturesByProject(projectId!);
 
+  const [highlightedFixtures, setHighlightedFixtures] = useState<Fixture[]>();
+
   const onSlideChange = (currentSlide: number) => {
     console.log(currentSlide);
     const slideCurrent = slidesSortedBySpace![currentSlide];
     setCurrentSlide(slideCurrent);
     setActiveSlide(currentSlide);
   };
+
+  const getFixtureSlideUrl = (fixtureId: string) => {
+    const slide = slides?.find((slide: Slide) =>
+      slide.fixtures?.includes(fixtureId)
+    );
+    return slide ? slide.url : "";
+  };
+
+  useEffect(() => {
+    if (!projectData || !fixtures) {
+      return;
+    }
+
+    if (projectData.highlights && projectData.highlights.fixtureHighlights) {
+      setHighlightedFixtures(
+        fixtures.filter((fix: Fixture) =>
+          projectData.highlights?.fixtureHighlights?.includes(fix._id!)
+        )
+      );
+    }
+  }, [fixtures, projectData]);
 
   useEffect(() => {
     if (!slides) {
@@ -106,10 +129,6 @@ const ProjectDetails: React.FC = () => {
       return !!slides?.find((slide: Slide) => slide.spaces?.includes(s._id!));
     });
   };
-
-  const renderTabBar: TabsProps["renderTabBar"] = (props, DefaultTabBar) => (
-    <DefaultTabBar {...props} style={{ margin: 0, padding: "8" }} />
-  );
 
   /**
    * Displays all spaces in a tabbed layout
@@ -177,18 +196,31 @@ const ProjectDetails: React.FC = () => {
     });
   };
 
+  const carouselHeight = isMobile ? 200 : Math.min(window.innerHeight) * 0.8;
   return (
     <Flex
       vertical={isMobile}
+      align="center"
+      justify="center"
+      gap={16}
       style={{
-        maxWidth: isMobile ? "100%" : maxDesktopWidth,
+        maxWidth: isMobile ? "100%" : Math.min(1400, window.innerWidth),
         width: "100%",
+        padding: isMobile ? 0 : 16,
+        height: isMobile ? "100%" : window.innerHeight - 150,
         margin: "auto",
-        backgroundColor: COLORS.bgColor,
         overflow: "hidden",
       }}
     >
-      <div style={{ position: "relative", width: isMobile ? "100%" : "50%" }}>
+      <div
+        style={{
+          borderRadius: isMobile ? 0 : 16,
+          position: "relative",
+          width: isMobile
+            ? "100%"
+            : `calc(${Math.min(1400, window.innerWidth)}px - 550px)`,
+        }}
+      >
         <Carousel
           autoplay={true}
           ref={slidesCarouselRef}
@@ -204,11 +236,9 @@ const ProjectDetails: React.FC = () => {
                   backgroundSize: "cover",
                   backgroundRepeat: "no-repeat",
                   width: "100%",
-                  height: isMobile
-                    ? "200px"
-                    : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
-                      1.33333,
+                  height: carouselHeight,
                   border: "1px solid",
+                  borderRadius: isMobile ? 0 : 24,
                   borderColor: COLORS.borderColor,
                   flex: "none",
                 }}
@@ -226,10 +256,8 @@ const ProjectDetails: React.FC = () => {
                       backgroundSize: "cover",
                       backgroundRepeat: "no-repeat",
                       width: "100%",
-                      height: isMobile
-                        ? `200px`
-                        : Math.min(window.innerWidth * 0.58, maxDesktopWidth) /
-                          1.33333,
+                      borderRadius: isMobile ? 0 : 24,
+                      height: isMobile ? `200px` : carouselHeight,
                       border: "1px solid",
                       borderColor: COLORS.borderColor,
                       flex: "none",
@@ -259,7 +287,15 @@ const ProjectDetails: React.FC = () => {
         </div>
       </div>
 
-      <Flex vertical>
+      <Flex
+        vertical
+        style={{
+          width: isMobile ? "100%" : "480px",
+          height: isMobile ? "auto" : carouselHeight,
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+        }}
+      >
         {/* The header bar including name, one liner, tags */}
         <Flex
           vertical
@@ -270,10 +306,29 @@ const ProjectDetails: React.FC = () => {
           gap={12}
         >
           <Flex justify="space-between">
-            <Flex vertical gap={5}>
-              <Typography.Title level={2} style={{ margin: 0 }}>
-                {projectData.name}
-              </Typography.Title>
+            <Flex vertical gap={5} style={{ width: "100%" }}>
+              <Flex align="center">
+                <Typography.Title level={2} style={{ margin: 0 }}>
+                  {projectData.name}
+                </Typography.Title>
+                <Typography.Title
+                  level={5}
+                  style={{
+                    margin: 0,
+                    marginLeft: "auto",
+                    padding: 8,
+                    border: "1px solid",
+                    borderRadius: 8,
+                    borderColor: COLORS.textColorMedium,
+                  }}
+                >
+                  {formatCost(
+                    spaces.reduce((accumulator: number, space: Space) => {
+                      return accumulator + (space.cost || 0);
+                    }, 0)
+                  )}
+                </Typography.Title>
+              </Flex>
               <Flex
                 gap={4}
                 style={{
@@ -298,7 +353,7 @@ const ProjectDetails: React.FC = () => {
             style={{
               paddingBottom: 24,
               borderBottom: "1px solid",
-              borderBottomColor: COLORS.borderColorDark,
+              borderBottomColor: COLORS.borderColor,
             }}
           >
             {projectData.oneLiner && (
@@ -324,7 +379,7 @@ const ProjectDetails: React.FC = () => {
                   color: COLORS.textColorDark,
                 }}
               >
-                Cost
+                Cost Details
               </Button>
               <Button
                 icon={<DesignerIcon></DesignerIcon>}
@@ -341,8 +396,61 @@ const ProjectDetails: React.FC = () => {
             </Flex>
           </Flex>
         </Flex>
-        <Flex vertical style={{padding: "0 16px"}}>
-          <Typography.Title level={4}>All spaces in this design</Typography.Title>
+        {/* Project Highlights */}
+        <Flex
+          vertical
+          style={{
+            margin: "0 24px",
+            paddingBottom: 24,
+            borderBottom: "1px solid",
+            borderBottomColor: COLORS.borderColor,
+          }}
+          gap={24}
+        >
+          <Flex gap={8} align="center" style={{margin: "0", marginTop: 24}}>
+            <HighlightsIcon></HighlightsIcon>
+            <Typography.Title level={4} style={{margin: 0}}>
+            Highlights of this project
+            </Typography.Title>
+          </Flex>
+          {highlightedFixtures && highlightedFixtures.length
+            ? highlightedFixtures.map((fix: Fixture, index: number) => {
+                return (
+                  <Flex gap={16} align="center">
+                    <Flex style={{ height: 60, width: 60 }}>
+                      <Image
+                        preview={false}
+                        src={getFixtureSlideUrl(fix._id!)}
+                        width={60}
+                        style={{ opacity: 0.8, borderRadius: 8 }}
+                        height={60}
+                      ></Image>
+                    </Flex>
+                    <Flex vertical>
+                      <Typography.Title level={5} style={{ margin: 0 }}>
+                        {fix.designName}
+                      </Typography.Title>
+                      <Typography.Text
+                        style={{
+                          color: COLORS.textColorLight,
+                          lineHeight: "120%",
+                        }}
+                      >
+                        {fix.description}
+                      </Typography.Text>
+                    </Flex>
+                  </Flex>
+                );
+              })
+            : null}
+        </Flex>
+        <Flex vertical style={{ padding: "0 16px" }}>
+          <Flex gap={8} align="center" style={{margin: "24px 0", marginTop: 40}}>
+            <SpacesIcon></SpacesIcon>
+            <Typography.Title level={4} style={{margin: 0}}>
+              All spaces in this design
+            </Typography.Title>
+          </Flex>
           {renderSpaces(validSpaces)}
         </Flex>
         <Modal
@@ -391,7 +499,7 @@ const ProjectDetails: React.FC = () => {
                       textAlign: "left",
                     }}
                   >
-                    Fixture
+                    Space
                   </th>
                   <th
                     style={{
@@ -420,6 +528,23 @@ const ProjectDetails: React.FC = () => {
               </tbody>
             </table>
           </div>
+          <Flex style={{ marginTop: 12 }} justify="flex-end">
+            <Typography.Text
+              style={{
+                fontSize: 14,
+                marginRight: 8,
+                marginLeft: 4,
+                color: COLORS.textColorLight,
+              }}
+            >
+              L: Lacs,
+            </Typography.Text>
+            <Typography.Text
+              style={{ fontSize: 14, color: COLORS.textColorLight }}
+            >
+              K: Thousand
+            </Typography.Text>
+          </Flex>
         </Modal>
       </Flex>
     </Flex>

@@ -21,6 +21,9 @@ export interface Project {
     designerName: string,
     profilePicture: string;
   };
+  highlights?: {
+    fixtureHighlights?: string[]
+  }
   archived: boolean;
 }
 

@@ -45,7 +45,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
     return (
       <Paragraph
         ellipsis={{ rows: 2 }}
-        style={{ color: COLORS.textColorLight, marginBottom: 8 }}
+        style={{ color: COLORS.textColorLight, marginBottom: 8, lineHeight: "140%", fontSize: 14 }}
       >
         {space.fixtures.map((fix: Fixture, index: number) => {
           return `${fix!.fixtureType?.fixtureType || fix!.fixtureType?.fixtureType}${
@@ -65,13 +65,13 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
         border: "2px solid",
         borderColor: COLORS.borderColor,
         backgroundColor: "white",
-        width: cardWidth || (isMobile ? "45%" : 225),
-        minWidth: cardWidth || (isMobile ? "45%" : 225),
+        width: cardWidth || ("44%"),
+        minWidth: cardWidth || ("44%"),
       }}
     >
       <Flex
         vertical
-        gap={16}
+        gap={8}
         align="flex-start"
         onClick={() => {
           navigate(`/project/${projectId}/space/${space._id}`, {replace: true});
@@ -85,7 +85,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
             backgroundRepeat: "no-repeat",
             borderRadius: 16,
             width: "100%",
-            height: 190,
+            height: 150,
             border: "1px solid",
             borderColor: COLORS.borderColor,
             flex: "none",
@@ -94,7 +94,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
 
         <Flex style={{ padding: "0px 10px" }} vertical>
           <Flex justify="space-between">
-            <Typography.Title level={5} style={{ margin: 0, marginBottom: 8 }}>
+            <Typography.Title level={5} style={{ margin: 0, marginBottom: 0 }}>
               {space.name}
             </Typography.Title>
 

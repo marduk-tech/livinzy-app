@@ -5,6 +5,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../hooks/use-auth";
 import { useUser } from "../hooks/use-user";
+import { UserOutlined } from "@ant-design/icons";
 
 const { Header, Content } = Layout;
 
@@ -36,7 +37,7 @@ export const DashboardLayout: React.FC = () => {
         <Header style={{ padding: "8px 24px", background: "transparent" }}>
           <Flex align="center" justify="space-between">
             <Image
-              src="../../logo-name.png"
+              src="/logo-name.png"
               style={{ height: 35, width: "auto" }}
             ></Image>
             {user && !isLoading && user.mobile ? (
@@ -50,8 +51,7 @@ export const DashboardLayout: React.FC = () => {
                 Logout
               </Button>
             ) : (
-              <Button size="small" onClick={() => navigate("/auth/login")}>
-                Login
+              <Button icon={<UserOutlined />} size="small" onClick={() => navigate("/auth/login")}>
               </Button>
             )}
           </Flex>
