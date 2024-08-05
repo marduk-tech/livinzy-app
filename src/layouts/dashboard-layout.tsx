@@ -38,6 +38,7 @@ export const DashboardLayout: React.FC = () => {
           <Flex align="center" justify="space-between">
             <Image
               src="/logo-name.png"
+              preview={false}
               style={{ height: 35, width: "auto" }}
             ></Image>
             {user && !isLoading && user.mobile ? (
