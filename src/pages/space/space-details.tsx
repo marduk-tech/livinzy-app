@@ -310,7 +310,7 @@ const SpaceDetails: React.FC = () => {
                 borderColor: COLORS.textColorMedium,
               }}
             >
-               {formatCost(spaceData.cost)}
+              {formatCost(spaceData.cost)}
             </Typography.Title>
           </Flex>
 
@@ -480,12 +480,11 @@ const SpaceDetails: React.FC = () => {
               })
             : null}
         </Flex>
-
-        <Flex vertical style={{ marginTop: 0, padding: 16 }} gap={8}>
-          <Typography.Title level={4} style={{ margin: 0, marginTop: 24 }}>
-            Brands Used
-          </Typography.Title>
-          {uniqueBrands && uniqueBrands.length ? (
+        {uniqueBrands && uniqueBrands.length ? (
+          <Flex vertical style={{ marginTop: 0, padding: 16 }} gap={8}>
+            <Typography.Title level={4} style={{ margin: 0, marginTop: 24 }}>
+              Brands Used
+            </Typography.Title>
             <Flex gap={16} align="center" style={{ flexWrap: "wrap" }}>
               {uniqueBrands.map((brand: String) => (
                 <Image
@@ -499,9 +498,8 @@ const SpaceDetails: React.FC = () => {
                 ></Image>
               ))}
             </Flex>
-          ) : null}
-        </Flex>
-
+          </Flex>
+        ) : null}
         {/* More from this project */}
         <Flex vertical style={{ padding: 16 }}>
           <Typography.Title level={4}>
