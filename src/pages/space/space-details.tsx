@@ -417,7 +417,7 @@ const SpaceDetails: React.FC = () => {
                               : COLORS.textColorDark,
                         }}
                       >
-                        {fixture.fixtureType?.fixtureType!}
+                        {fixture.designName}
                       </Typography.Text>
                     </Flex>
                   );
