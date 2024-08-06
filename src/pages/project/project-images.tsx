@@ -1,16 +1,18 @@
-import { Flex } from "antd";
+import { Button, Flex } from "antd";
 import React from "react";
 import Gallery from "react-photo-gallery";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Loader } from "../../components/loader";
 import { useFetchSlidesByProject } from "../../hooks/use-slides";
 import { maxDesktopWidth } from "../../libs/constants";
 import { useDevice } from "../../libs/device";
 import { COLORS } from "../../styles/style-constants";
+import { BackIcon } from "../../libs/icons";
 
 export const ProjectImagesPage: React.FC = () => {
   const { projectId } = useParams();
   const { isMobile } = useDevice();
+  const navigate = useNavigate();
 
   const { data: slides, isLoading: slidesLoading } = useFetchSlidesByProject(
     projectId!
@@ -37,9 +39,18 @@ export const ProjectImagesPage: React.FC = () => {
           width: "100%",
           margin: "auto",
           backgroundColor: COLORS.bgColor,
+          position: "relative"
         }}
       >
-        <div style={{ padding: "40px 0px" }}>
+        <Button
+          type="link"
+          onClick={() => {
+            navigate(-1);
+          }}
+          style={{ position: "fixed", top: 16, left: 16 }}
+          icon={<BackIcon></BackIcon>}
+        ></Button>
+        <div style={{ padding: "0px" }}>
           <Gallery photos={projectImages} />
         </div>
       </Flex>

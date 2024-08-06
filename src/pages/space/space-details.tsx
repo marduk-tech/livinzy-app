@@ -15,7 +15,7 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useFetchFixturesByProject } from "../../hooks/use-fixtures";
 import useParentDimensions from "../../hooks/use-parent-dimension";
 import { useFetchProject } from "../../hooks/use-projects";
@@ -31,9 +31,11 @@ import { Space } from "../../interfaces/Space";
 import { maxDesktopWidth } from "../../libs/constants";
 import { useDevice } from "../../libs/device";
 import {
+  BackIcon,
   DesignerIcon,
   DesignerNoteIcon,
   FixtureIcon,
+  LikeIcon,
   PhotosIcon,
   RupeesIcon,
 } from "../../libs/icons";
@@ -47,8 +49,8 @@ const SpaceDetails: React.FC = () => {
   const { projectId, spaceId } = useParams();
   const { isMobile } = useDevice();
   const slidesCarouselRef = useRef(null);
-  const { ref, dimensions } = useParentDimensions();
   const [isCostDialogOpen, setIsCostDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   const { data: projectData, isLoading: projectDataLoading } = useFetchProject(
     projectId!
@@ -74,6 +76,8 @@ const SpaceDetails: React.FC = () => {
   const { data: fixtures, isLoading: fixturesLoading } =
     useFetchFixturesByProject(projectId!);
 
+  const [uniqueBrands, setUniqueBrands] = useState<String[]>();
+
   const onSlideChange = (currentSlide: number) => {
     if (!fixtureSlides || !fixtureSlides.length) {
       return;
@@ -87,14 +91,14 @@ const SpaceDetails: React.FC = () => {
       return;
     }
     setSpaceSlides(spaceData.slides);
-  }, [spaceData])
+  }, [spaceData]);
 
   useEffect(() => {
     if (!slides) {
       return;
     }
-    const fixtureSlidesTemp = slides?.filter(
-      (s: Slide) => s.fixtures?.includes(fixtureSelected?._id!)
+    const fixtureSlidesTemp = slides?.filter((s: Slide) =>
+      s.fixtures?.includes(fixtureSelected?._id!)
     );
     setFixtureSlides(fixtureSlidesTemp);
     setActiveSlide(0);
@@ -134,7 +138,17 @@ const SpaceDetails: React.FC = () => {
 
     setSpaceFixtures(spaceFixtures);
     setFixtureSelected(spaceFixtures[0]);
-  }, [spaces, fixtures]);
+
+    const brandsArr: string[] = ["greenply"];
+    spaceFixtures.forEach((fix: Fixture) => {
+      fix.components.forEach((component: any) => {
+        if (component.brand && !brandsArr.includes(component.brand)) {
+          brandsArr.push(component.brand);
+        }
+      });
+    });
+    setUniqueBrands(brandsArr);
+  }, [spaces, fixtures, spaceId]);
 
   /**
    * Filters out spaces which are not mapped to any image
@@ -162,22 +176,36 @@ const SpaceDetails: React.FC = () => {
     s2._id!.localeCompare(s1._id!)
   );
 
+  const carouselHeight = isMobile ? 400 : Math.min(window.innerHeight) * 0.8;
+
+  const carouselWidth = isMobile
+    ? window.innerWidth
+    : Math.min(1400, window.innerWidth) - 550;
   return (
     <Flex
-      vertical
+      align="center"
+      justify="center"
+      vertical={isMobile}
       style={{
-        maxWidth: isMobile ? "100%" : maxDesktopWidth,
+        maxWidth: isMobile ? "100%" : Math.min(1400, window.innerWidth),
         width: "100%",
+        padding: isMobile ? 0 : 16,
+        height: isMobile ? "100%" : window.innerHeight - 150,
         margin: "auto",
-        backgroundColor: COLORS.bgColor,
+        paddingTop: isMobile ? 0 : 80,
+        overflow: "hidden",
       }}
     >
       {/* The header bar including name, one liner, tags */}
 
-      
-
       {/* The carousel for the space */}
-      <div style={{ position: "relative" }}>
+      <div
+        style={{
+          position: "relative",
+          borderRadius: isMobile ? 0 : 16,
+          width: isMobile ? "100%" : `${carouselWidth}px`,
+        }}
+      >
         <Carousel
           ref={slidesCarouselRef}
           fade={true}
@@ -187,21 +215,19 @@ const SpaceDetails: React.FC = () => {
         >
           {fixtureSlides &&
             fixtureSlides!.map((sl: Slide) => {
-              const divWidth = isMobile
-                ? window.innerWidth
-                : Math.min(window.innerWidth * 0.58, maxDesktopWidth);
-
-              const divHeight = isMobile ? divWidth : divWidth / 1.33333;
               if (fixtureBoundingBox) {
                 return (
                   <ZoomedImage
                     label={fixtureSelected?.designName}
                     imageUrl={sl.url}
                     boundingBox={fixtureBoundingBox}
-                    containerSize={{ width: divWidth, height: divHeight }}
+                    containerSize={{
+                      width: carouselWidth,
+                      height: carouselHeight,
+                    }}
                   ></ZoomedImage>
                 );
-              } else
+              } else {
                 return (
                   <div>
                     <div
@@ -211,21 +237,32 @@ const SpaceDetails: React.FC = () => {
                         backgroundSize: "cover",
                         backgroundRepeat: "no-repeat",
                         width: "100%",
-                        height: isMobile
-                          ? `${window.innerWidth}px`
-                          : Math.min(
-                              window.innerWidth * 0.58,
-                              maxDesktopWidth
-                            ) / 1.33333,
+                        height: carouselHeight,
                         border: "1px solid",
+                        borderRadius: isMobile ? 0 : 24,
                         borderColor: COLORS.borderColor,
                         flex: "none",
                       }}
                     ></div>
                   </div>
                 );
+              }
             })}
         </Carousel>
+
+        <Button
+          type="link"
+          onClick={() => {
+            navigate(`/project/${projectId}`);
+          }}
+          style={{ position: "fixed", top: 16, left: 16 }}
+          icon={<BackIcon></BackIcon>}
+        ></Button>
+        <Button
+          type="link"
+          style={{ position: "fixed", top: 16, right: 16 }}
+          icon={<LikeIcon></LikeIcon>}
+        ></Button>
 
         <div
           style={{
@@ -244,25 +281,48 @@ const SpaceDetails: React.FC = () => {
           </Link>
         </div>
       </div>
+      <Flex
+        vertical
+        style={{
+          width: isMobile ? "100%" : "480px",
+          height: isMobile ? "auto" : carouselHeight,
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+        }}
+      >
+        <Flex vertical style={{ padding: "0 16px", marginTop: 16 }} gap={8}>
+          {/* Space name & cost*/}
+          <Flex align="center">
+            <Typography.Title
+              level={2}
+              style={{ margin: 0, fontFamily: FONTS.bold, marginBottom: 0 }}
+            >
+              {spaceData.name || spaceData?.spaceType.spaceType}
+            </Typography.Title>
+            <Typography.Title
+              level={5}
+              style={{
+                margin: 0,
+                marginLeft: "auto",
+                padding: "4px 8px",
+                border: "1px solid",
+                borderRadius: 8,
+                borderColor: COLORS.textColorMedium,
+              }}
+            >
+               {formatCost(spaceData.cost)}
+            </Typography.Title>
+          </Flex>
 
-      <Flex vertical style={{ padding: "0 16px", marginTop: 16 }} gap={8}>
-        {/* Space name */}
-        <Typography.Title
-          level={2}
-          style={{ margin: 0, fontFamily: FONTS.bold, marginBottom: 0 }}
-        >
-          {spaceData.name || spaceData?.spaceType.spaceType}
-        </Typography.Title>
-
-        {/* Meta info */}
-        {/* <Flex gap={4}>
+          {/* Meta info */}
+          {/* <Flex gap={4}>
           {projectData.homeDetails?.homeType.homeType!} ·{" "}
           {projectData.homeDetails?.size} sqft
         </Flex> */}
 
-        {/* One liner and buttons */}
-        {/* <Flex vertical>
-          {spaceData.oneLiner && (
+          {/* One liner and buttons */}
+          <Flex vertical>
+            {/* {spaceData.oneLiner && (
             <Typography.Text
               style={{
                 margin: 0,
@@ -279,244 +339,297 @@ const SpaceDetails: React.FC = () => {
                 {spaceData.oneLiner!}
               </Paragraph>
             </Typography.Text>
-          )}
-          <Flex style={{ marginTop: 16 }}>
-            <Button
-              icon={<RupeesIcon></RupeesIcon>}
-              type="link"
-              onClick={() => {
-                setIsCostDialogOpen(true);
-              }}
-              style={{
-                padding: 0,
-                paddingRight: 16,
-                height: 32,
-                color: COLORS.textColorDark,
-              }}
-            >
-              Cost
-            </Button>
-            <Button
-              icon={<DesignerIcon></DesignerIcon>}
-              type="link"
-              style={{
-                padding: 0,
-                paddingRight: 16,
-                height: 32,
-                color: COLORS.textColorDark,
-              }}
-            >
-              Designer Info
-            </Button>
+          )} */}
+            <Flex>
+              <Button
+                icon={<RupeesIcon></RupeesIcon>}
+                type="link"
+                onClick={() => {
+                  setIsCostDialogOpen(true);
+                }}
+                style={{
+                  padding: 0,
+                  paddingRight: 16,
+                  height: 32,
+                  color: COLORS.textColorDark,
+                }}
+              >
+                Cost
+              </Button>
+              <Button
+                icon={<DesignerIcon></DesignerIcon>}
+                type="link"
+                style={{
+                  padding: 0,
+                  paddingRight: 16,
+                  height: 32,
+                  color: COLORS.textColorDark,
+                }}
+              >
+                Designer Info
+              </Button>
+            </Flex>
           </Flex>
-        </Flex> */}
-      </Flex>
+        </Flex>
 
-      {/* Fixtures horizontal list */}
-      <Flex vertical style={{ marginTop: 0, padding: 16 }} gap={8}>
-        <Flex
-          style={{
-            overflowX: "scroll",
-            width: "100%",
-            whiteSpace: "nowrap",
-            scrollbarWidth: "none" /* Firefox */,
-            msOverflowStyle: "none" /* IE and Edge */,
-          }}
-        >
-          {spaceFixtures && spaceFixtures.length
-            ? spaceFixtures.map((fixture: Fixture) => {
-                return (
-                  <Flex
-                    gap={8}
-                    style={{
-                      marginRight: 8,
-                      padding: "8px 16px",
-                      backgroundColor:
-                        fixtureSelected?._id == fixture._id
-                          ? COLORS.primaryColor
-                          : "white",
-
-                      border: "2px solid",
-                      borderColor: COLORS.borderColor,
-                      borderRadius: 32,
-                    }}
-                    onClick={() => {
-                      setFixtureSelected(fixture);
-                    }}
-                  >
-                    <Typography.Text
+        {/* Fixtures horizontal list */}
+        <Flex vertical style={{ marginTop: 0, padding: 16 }} gap={8}>
+          <Typography.Title level={4} style={{ margin: 0, marginTop: 24 }}>
+            What's included?
+          </Typography.Title>
+          <Flex
+            style={{
+              overflowX: "scroll",
+              width: "100%",
+              whiteSpace: "nowrap",
+              scrollbarWidth: "none" /* Firefox */,
+              msOverflowStyle: "none" /* IE and Edge */,
+            }}
+          >
+            {spaceFixtures && spaceFixtures.length
+              ? spaceFixtures.map((fixture: Fixture) => {
+                  return (
+                    <Flex
+                      gap={8}
                       style={{
-                        margin: 0,
-                        fontSize: 18,
-                        color:
+                        marginRight: 8,
+                        padding: "8px 16px",
+                        backgroundColor:
                           fixtureSelected?._id == fixture._id
-                            ? "white"
-                            : COLORS.textColorDark,
+                            ? COLORS.primaryColor
+                            : "white",
+
+                        border: "2px solid",
+                        borderColor: COLORS.borderColor,
+                        borderRadius: 8,
+                      }}
+                      onClick={() => {
+                        setFixtureSelected(fixture);
                       }}
                     >
-                      {fixture.fixtureType?.fixtureType!}
-                    </Typography.Text>
+                      <Typography.Text
+                        style={{
+                          margin: 0,
+                          fontSize: 18,
+                          color:
+                            fixtureSelected?._id == fixture._id
+                              ? "white"
+                              : COLORS.textColorDark,
+                        }}
+                      >
+                        {fixture.fixtureType?.fixtureType!}
+                      </Typography.Text>
+                    </Flex>
+                  );
+                })
+              : null}
+          </Flex>
+        </Flex>
+
+        {/* Fixture components list */}
+        <Typography.Text
+          style={{
+            margin: 0,
+            marginBottom: 0,
+            color: COLORS.textColorLight,
+            padding: "0 24px",
+          }}
+        >
+          List of materials or accessories
+        </Typography.Text>
+        <Flex
+          gap={24}
+          vertical
+          style={{
+            padding: 16,
+            margin: 16,
+            marginTop: 8,
+            backgroundColor: "white",
+            borderRadius: 8,
+          }}
+        >
+          {fixtureSelected && fixtureSelected.components
+            ? fixtureSelected!.components.map((component: any) => {
+                return (
+                  <Flex align="center" gap={24}>
+                    <Image
+                      src={`/icons/${component.workType}.png`}
+                      width={40}
+                      height={40}
+                    ></Image>
+                    <Flex vertical style={{ width: "calc(100% - 64px)" }}>
+                      <Typography.Text
+                        style={{
+                          textTransform: "uppercase",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {component.commonName}
+                      </Typography.Text>
+                      <Typography.Text
+                        style={{
+                          lineHeight: "100%",
+                          color: COLORS.textColorLight,
+                        }}
+                      >
+                        {component.oneLiner}
+                      </Typography.Text>
+                    </Flex>
                   </Flex>
                 );
               })
             : null}
         </Flex>
-      </Flex>
 
-      {/* Fixture components list */}
-      <Flex
-        gap={24}
-        vertical
-        style={{
-          padding: 16,
-          margin: 16,
-          marginTop: 8,
-          backgroundColor: "white",
-          borderRadius: 16,
-        }}
-      >
-        <Typography.Title level={4} style={{ margin: 0, marginBottom: 0 }}>
-          {fixtureSelected?.designName}
-        </Typography.Title>
-        {fixtureSelected && fixtureSelected.components
-          ? fixtureSelected!.components.map((component: any) => {
-              return (
-                <Flex align="center" gap={24}>
-                  <Image
-                    src={`/icons/${component.workType}.png`}
-                    width={40}
-                    height={40}
-                  ></Image>
-                  <Flex vertical style={{ width: "calc(100% - 64px)" }}>
-                    <Typography.Text
-                      style={{
-                        textTransform: "uppercase",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {component.commonName}
-                    </Typography.Text>
-                    <Typography.Text
-                      style={{
-                        lineHeight: "100%",
-                        color: COLORS.textColorLight,
-                      }}
-                    >
-                      {component.oneLiner}
-                    </Typography.Text>
-                  </Flex>
-                </Flex>
-              );
-            })
-          : null}
-      </Flex>
-
-      {/* More from this project */}
-      <Flex vertical style={{ padding: 16 }}>
-        <Typography.Title level={4}>More rooms in this design</Typography.Title>
-        <Flex
-          style={{
-            whiteSpace: "nowrap",
-            overflowX: "scroll",
-            width: "100%",
-            scrollbarWidth: "none" /* Firefox */,
-            msOverflowStyle: "none" /* IE and Edge */,
-          }}
-          gap={16}
-        >
-          {" "}
-          {validSpaces.map((space: Space) => {
-            const spaceSlides = slides!.filter((s: Slide) =>
-              s.spaces!.includes(space!._id!)
-            );
-
-            return (
-              <SpaceCard
-                cardWidth={175}
-                space={space}
-                slides={spaceSlides}
-                projectId={projectId!}
-                fixtures={fixtures}
-                skipFixtures={true}
-              ></SpaceCard>
-            );
-          })}
-        </Flex>
-      </Flex>
-
-      {/* Cost Dialog */}
-      <Modal
-        title="Costing Details"
-        open={isCostDialogOpen}
-        closable={true}
-        onCancel={() => {
-          setIsCostDialogOpen(false);
-        }}
-        footer={() => <></>}
-      >
-        <Flex vertical style={{ margin: "16px 0" }}>
-          <Typography.Text style={{ textTransform: "uppercase" }}>
-            Total Cost
-          </Typography.Text>
-          <Typography.Title level={3} style={{ margin: 0 }}>
-            {formatCost(spaceData.cost)}
+        <Flex vertical style={{ marginTop: 0, padding: 16 }} gap={8}>
+          <Typography.Title level={4} style={{ margin: 0, marginTop: 24 }}>
+            Brands Used
           </Typography.Title>
+          {uniqueBrands && uniqueBrands.length ? (
+            <Flex gap={16} align="center" style={{ flexWrap: "wrap" }}>
+              {uniqueBrands.map((brand: String) => (
+                <Image
+                  style={{
+                    borderRadius: 8,
+                    border: "1px solid",
+                    borderColor: COLORS.borderColorDark,
+                  }}
+                  width={100}
+                  src={`/brand-logos/${brand.toLowerCase()}.png`}
+                ></Image>
+              ))}
+            </Flex>
+          ) : null}
         </Flex>
-        <div
-          style={{
-            overflow: "hidden",
-            borderRadius: "10px",
-            border: "1px solid",
-            borderColor: COLORS.borderColorDark,
-            boxShadow: "inset 0 0 0 1px black",
-          }}
-        >
-          <table
+
+        {/* More from this project */}
+        <Flex vertical style={{ padding: 16 }}>
+          <Typography.Title level={4}>
+            More spaces in this design
+          </Typography.Title>
+          <Flex
             style={{
-              borderCollapse: "separate",
-              borderSpacing: 0,
+              whiteSpace: "nowrap",
+              overflowX: "scroll",
               width: "100%",
+              scrollbarWidth: "none" /* Firefox */,
+              msOverflowStyle: "none" /* IE and Edge */,
             }}
+            gap={16}
           >
-            <thead>
-              <tr>
-                <th
-                  style={{
-                    border: "1px solid",
-                    padding: "8px",
-                    textAlign: "left",
-                  }}
-                >
-                  Fixture
-                </th>
-                <th
-                  style={{
-                    border: "1px solid",
-                    padding: "8px",
-                    textAlign: "left",
-                  }}
-                >
-                  Cost
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {spaceFixtures!.map((fixture: Fixture, index: number) => {
+            {" "}
+            {validSpaces
+              .filter((s: Space) => s._id !== spaceData._id)
+              .map((space: Space) => {
+                const spaceSlides = slides!.filter((s: Slide) =>
+                  s.spaces!.includes(space!._id!)
+                );
+
                 return (
-                  <tr key={index}>
-                    <td style={{ border: "1px solid black", padding: "8px" }}>
-                      {fixture.designName}
-                    </td>
-                    <td
-                      style={{ border: "1px solid black", padding: "8px" }}
-                    >{`${formatCost(fixture.cost || 0)}`}</td>
-                  </tr>
+                  <SpaceCard
+                    cardWidth={175}
+                    space={space}
+                    slides={spaceSlides}
+                    projectId={projectId!}
+                    fixtures={fixtures}
+                    skipFixtures={true}
+                  ></SpaceCard>
                 );
               })}
-            </tbody>
-          </table>
-        </div>
-      </Modal>
+          </Flex>
+        </Flex>
+
+        {/* Cost Dialog */}
+        <Modal
+          title="Costing Details"
+          open={isCostDialogOpen}
+          closable={true}
+          onCancel={() => {
+            setIsCostDialogOpen(false);
+          }}
+          footer={() => <></>}
+        >
+          <Flex vertical style={{ margin: "16px 0" }}>
+            <Typography.Text style={{ textTransform: "uppercase" }}>
+              Total Cost
+            </Typography.Text>
+            <Typography.Title level={3} style={{ margin: 0 }}>
+              {formatCost(spaceData.cost)}
+            </Typography.Title>
+          </Flex>
+          <div
+            style={{
+              overflow: "hidden",
+              borderRadius: "10px",
+              border: "1px solid",
+              borderColor: COLORS.borderColorDark,
+              boxShadow: "inset 0 0 0 1px black",
+            }}
+          >
+            <table
+              style={{
+                borderCollapse: "separate",
+                borderSpacing: 0,
+                width: "100%",
+              }}
+            >
+              <thead>
+                <tr>
+                  <th
+                    style={{
+                      border: "1px solid",
+                      padding: "8px",
+                      textAlign: "left",
+                    }}
+                  >
+                    Fixture
+                  </th>
+                  <th
+                    style={{
+                      border: "1px solid",
+                      padding: "8px",
+                      textAlign: "left",
+                    }}
+                  >
+                    Cost
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {spaceFixtures!.map((fixture: Fixture, index: number) => {
+                  return (
+                    <tr key={index}>
+                      <td style={{ border: "1px solid black", padding: "8px" }}>
+                        {fixture.designName}
+                      </td>
+                      <td
+                        style={{ border: "1px solid black", padding: "8px" }}
+                      >{`${formatCost(fixture.cost || 0)}`}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <Flex style={{ marginTop: 12 }} justify="flex-end">
+            <Typography.Text
+              style={{
+                fontSize: 14,
+                marginRight: 8,
+                marginLeft: 4,
+                color: COLORS.textColorLight,
+              }}
+            >
+              L: Lacs,
+            </Typography.Text>
+            <Typography.Text
+              style={{ fontSize: 14, color: COLORS.textColorLight }}
+            >
+              K: Thousand
+            </Typography.Text>
+          </Flex>
+        </Modal>
+      </Flex>
     </Flex>
   );
 };
