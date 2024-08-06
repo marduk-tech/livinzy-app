@@ -411,7 +411,7 @@ const ProjectDetails: React.FC = () => {
           <Flex gap={8} align="center" style={{margin: "0", marginTop: 24}}>
             <HighlightsIcon></HighlightsIcon>
             <Typography.Title level={4} style={{margin: 0}}>
-            Highlights of this project
+            Top Design Highlights
             </Typography.Title>
           </Flex>
           {highlightedFixtures && highlightedFixtures.length
@@ -449,7 +449,7 @@ const ProjectDetails: React.FC = () => {
           <Flex gap={8} align="center" style={{margin: "24px 0", marginTop: 40}}>
             <SpacesIcon></SpacesIcon>
             <Typography.Title level={4} style={{margin: 0}}>
-              All spaces in this design
+              All Spaces Designed
             </Typography.Title>
           </Flex>
           {renderSpaces(validSpaces)}
