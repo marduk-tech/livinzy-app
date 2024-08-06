@@ -39,7 +39,7 @@ const ProjectsList: React.FC = () => {
         style={{
           width: "100%",
           marginTop: 16,
-          padding: `0px ${isMobile ? "20px" : "40px"}`,
+          padding: `16px ${isMobile ? "20px" : "40px"}`,
         }}
       >
         <Row gutter={[35, 30]} style={{ width: "1200px" }}>

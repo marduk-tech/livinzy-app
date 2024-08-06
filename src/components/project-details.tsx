@@ -294,6 +294,7 @@ const ProjectDetails: React.FC = () => {
           height: isMobile ? "auto" : carouselHeight,
           overflowY: "scroll",
           scrollbarWidth: "none",
+          paddingBottom: 16
         }}
       >
         {/* The header bar including name, one liner, tags */}
