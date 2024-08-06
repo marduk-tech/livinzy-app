@@ -139,7 +139,7 @@ const SpaceDetails: React.FC = () => {
     setSpaceFixtures(spaceFixtures);
     setFixtureSelected(spaceFixtures[0]);
 
-    const brandsArr: string[] = ["greenply"];
+    const brandsArr: string[] = [];
     spaceFixtures.forEach((fix: Fixture) => {
       fix.components.forEach((component: any) => {
         if (component.brand && !brandsArr.includes(component.brand)) {
@@ -417,7 +417,7 @@ const SpaceDetails: React.FC = () => {
                               : COLORS.textColorDark,
                         }}
                       >
-                        {fixture.fixtureType?.fixtureType!}
+                        {fixture.designName}
                       </Typography.Text>
                     </Flex>
                   );
