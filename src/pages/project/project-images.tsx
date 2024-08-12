@@ -1,13 +1,15 @@
-import { Button, Flex } from "antd";
-import React from "react";
+import { Button, Flex, Typography } from "antd";
 import Gallery from "react-photo-gallery";
 import { useNavigate, useParams } from "react-router-dom";
 import { Loader } from "../../components/loader";
 import { useFetchSlidesByProject } from "../../hooks/use-slides";
+import { useFetchSpacesByProject } from "../../hooks/use-spaces";
+import { Slide } from "../../interfaces/Slide";
+import { Space } from "../../interfaces/Space";
 import { maxDesktopWidth } from "../../libs/constants";
 import { useDevice } from "../../libs/device";
-import { COLORS } from "../../styles/style-constants";
 import { BackIcon } from "../../libs/icons";
+import { COLORS } from "../../styles/style-constants";
 
 export const ProjectImagesPage: React.FC = () => {
   const { projectId } = useParams();
@@ -17,19 +19,23 @@ export const ProjectImagesPage: React.FC = () => {
   const { data: slides, isLoading: slidesLoading } = useFetchSlidesByProject(
     projectId!
   );
+  const { data: allSpaces, isLoading: spacesLoading } = useFetchSpacesByProject(
+    projectId!
+  );
 
-  if (slidesLoading) {
+  if (spacesLoading || slidesLoading) {
     return <Loader />;
   }
 
-  if (slides) {
-    const projectImages = slides.map((slide) => {
-      return {
-        src: slide.url,
-        width: 4,
-        height: 3,
-      };
-    });
+  if (allSpaces && slides) {
+    // Create a mapping of slides by their IDs for quick lookup
+    const slidesById = slides.reduce(
+      (acc, slide) => {
+        acc[slide._id as string] = slide;
+        return acc;
+      },
+      {} as Record<string, (typeof slides)[0]>
+    );
 
     return (
       <Flex
@@ -39,21 +45,44 @@ export const ProjectImagesPage: React.FC = () => {
           width: "100%",
           margin: "auto",
           backgroundColor: COLORS.bgColor,
-          position: "relative"
+          position: "relative",
         }}
       >
         <Button
           type="link"
-          onClick={() => {
-            navigate(-1);
-          }}
+          onClick={() => navigate(-1)}
           style={{ position: "fixed", top: 16, left: 16 }}
-          icon={<BackIcon></BackIcon>}
-        ></Button>
+          icon={<BackIcon />}
+        />
+
         <div style={{ padding: "0px" }}>
-          <Gallery photos={projectImages} />
+          {allSpaces.map((space: Space) => {
+            if (space.slides.length === 0) {
+              return;
+            }
+
+            const projectImages = space.slides
+              .filter((s: Slide) => {
+                const slide = slidesById[s._id as string];
+                return slide && slide.url; // Only keep slides with a valid URL
+              })
+              .map((s: Slide) => {
+                const slide = slidesById[s._id as string];
+
+                return { src: slide.url, width: 4, height: 3 };
+              });
+
+            return (
+              <div key={space._id} style={{ marginBottom: "20px" }}>
+                <Typography.Title level={4}>{space.name}</Typography.Title>
+                <Gallery photos={projectImages} />
+              </div>
+            );
+          })}
         </div>
       </Flex>
     );
   }
+
+  return null;
 };
