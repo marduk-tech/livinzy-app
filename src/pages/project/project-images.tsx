@@ -46,6 +46,7 @@ export const ProjectImagesPage: React.FC = () => {
           margin: "auto",
           backgroundColor: COLORS.bgColor,
           position: "relative",
+          paddingTop: 40
         }}
       >
         <Button
@@ -61,7 +62,7 @@ export const ProjectImagesPage: React.FC = () => {
               return;
             }
 
-            const projectImages = space.slides
+            const spaceSlides = space.slides
               .filter((s: Slide) => {
                 const slide = slidesById[s._id as string];
                 return slide && slide.url; // Only keep slides with a valid URL
@@ -73,9 +74,9 @@ export const ProjectImagesPage: React.FC = () => {
               });
 
             return (
-              <div key={space._id} style={{ marginBottom: "20px" }}>
+              <div key={space._id} style={{ marginBottom: "20px", padding: "0 24px" }}>
                 <Typography.Title level={4}>{space.name}</Typography.Title>
-                <Gallery photos={projectImages} />
+                <Gallery photos={spaceSlides} />
               </div>
             );
           })}
