@@ -1,4 +1,5 @@
 import { Button, Flex, Typography } from "antd";
+import { useEffect, useState } from "react";
 import Gallery from "react-photo-gallery";
 import { useNavigate, useParams } from "react-router-dom";
 import { Loader } from "../../components/loader";
@@ -23,6 +24,36 @@ export const ProjectImagesPage: React.FC = () => {
     projectId!
   );
 
+  const [hasScrolled, setHasScrolled] = useState(false);
+
+  const scrollToSpace = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+
+      setHasScrolled(true);
+    }
+  };
+
+  useEffect(() => {
+    if (
+      !slidesLoading &&
+      !spacesLoading &&
+      allSpaces &&
+      slides &&
+      !hasScrolled
+    ) {
+      // extract the space id from the URL hash
+      const hash = window.location.hash;
+      if (hash) {
+        const spaceId = hash.substring(1);
+        scrollToSpace(spaceId);
+      }
+    }
+  }, [slidesLoading, spacesLoading, allSpaces, slides, hasScrolled]);
+
   if (spacesLoading || slidesLoading) {
     return <Loader />;
   }
@@ -46,7 +77,7 @@ export const ProjectImagesPage: React.FC = () => {
           margin: "auto",
           backgroundColor: COLORS.bgColor,
           position: "relative",
-          paddingTop: 40
+          paddingTop: 40,
         }}
       >
         <Button
@@ -59,7 +90,7 @@ export const ProjectImagesPage: React.FC = () => {
         <div style={{ padding: "0px" }}>
           {allSpaces.map((space: Space) => {
             if (space.slides.length === 0) {
-              return;
+              return null;
             }
 
             const spaceSlides = space.slides
@@ -69,12 +100,15 @@ export const ProjectImagesPage: React.FC = () => {
               })
               .map((s: Slide) => {
                 const slide = slidesById[s._id as string];
-
                 return { src: slide.url, width: 4, height: 3 };
               });
 
             return (
-              <div key={space._id} style={{ marginBottom: "20px", padding: "0 24px" }}>
+              <div
+                id={space._id}
+                key={space._id}
+                style={{ marginBottom: "20px", padding: "0 24px" }}
+              >
                 <Typography.Title level={4}>{space.name}</Typography.Title>
                 <Gallery photos={spaceSlides} />
               </div>
