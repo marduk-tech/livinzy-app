@@ -11,6 +11,7 @@ import { maxDesktopWidth } from "../../libs/constants";
 import { useDevice } from "../../libs/device";
 import { BackIcon } from "../../libs/icons";
 import { COLORS } from "../../styles/style-constants";
+import { getMockImg } from "../../libs/lvnzy-helper";
 
 export const ProjectImagesPage: React.FC = () => {
   const { projectId } = useParams();
@@ -100,7 +101,8 @@ export const ProjectImagesPage: React.FC = () => {
               })
               .map((s: Slide) => {
                 const slide = slidesById[s._id as string];
-                return { src: slide.url, width: 4, height: 3 };
+                const mockImg = getMockImg(slide.url);
+                return { src: slide.url, width: mockImg.width, height: mockImg.height };
               });
 
             return (
@@ -110,7 +112,7 @@ export const ProjectImagesPage: React.FC = () => {
                 style={{ marginBottom: "20px", padding: "0 24px" }}
               >
                 <Typography.Title level={4}>{space.name}</Typography.Title>
-                <Gallery photos={spaceSlides} />
+                <Gallery margin={4} photos={spaceSlides} />
               </div>
             );
           })}

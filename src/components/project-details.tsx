@@ -134,14 +134,14 @@ const ProjectDetails: React.FC = () => {
    * Displays all spaces in a tabbed layout
    * @returns
    */
-  const renderSpaces = (validSpaces: Space[]) => {
+  const renderSpaces = () => {
     return (
       <Flex
         style={{ flexWrap: "wrap", margin: "auto", width: "100%" }}
         gap={12}
       >
         {" "}
-        {validSpaces.map((space: Space) => {
+        {spaces.map((space: Space) => {
           return (
             <SpaceCard
               space={space}
@@ -165,9 +165,6 @@ const ProjectDetails: React.FC = () => {
     return "Loading..";
   }
 
-  const validSpaces = filterZombieSpaces(spaces).sort((s1: Space, s2: Space) =>
-    s2._id!.localeCompare(s1._id!)
-  );
 
   const handleFavToggle = async () => {
     if (!user) {
@@ -452,7 +449,7 @@ const ProjectDetails: React.FC = () => {
               All Spaces Designed
             </Typography.Title>
           </Flex>
-          {renderSpaces(validSpaces)}
+          {renderSpaces()}
         </Flex>
         <Modal
           title="Costing Details"

@@ -157,9 +157,6 @@ const SpaceDetails: React.FC = () => {
     return "Loading..";
   }
 
-  const validSpaces = filterZombieSpaces(spaces).sort((s1: Space, s2: Space) =>
-    s2._id!.localeCompare(s1._id!)
-  );
 
   const carouselHeight = isMobile ? 400 : Math.min(window.innerHeight) * 0.8;
 
@@ -194,6 +191,8 @@ const SpaceDetails: React.FC = () => {
         <Carousel
           ref={slidesCarouselRef}
           fade={true}
+          speed={2000}
+          autoplaySpeed={3000}
           autoplay={true}
           afterChange={onSlideChange}
           style={{ width: "100%", margin: "auto" }}
@@ -479,7 +478,8 @@ const SpaceDetails: React.FC = () => {
                     borderColor: COLORS.borderColorDark,
                   }}
                   width={100}
-                  src={`/brand-logos/${brand.toLowerCase()}.png`}
+                  preview={false}
+                  src={`/brand-logos/${brand.replaceAll(" ", "-").toLowerCase()}.png`}
                 ></Image>
               ))}
             </Flex>
@@ -501,18 +501,14 @@ const SpaceDetails: React.FC = () => {
             gap={16}
           >
             {" "}
-            {validSpaces
+            {spaces
               .filter((s: Space) => s._id !== spaceData._id)
               .map((space: Space) => {
-                const spaceSlides = slides!.filter((s: Slide) =>
-                  s.spaces!.includes(space!._id!)
-                );
-
                 return (
                   <SpaceCard
                     cardWidth={175}
                     space={space}
-                    slides={spaceSlides}
+                    slides={space.slides}
                     projectId={projectId!}
                     fixtures={fixtures}
                     skipFixtures={true}
