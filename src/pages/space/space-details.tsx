@@ -1,23 +1,8 @@
-import { ArrowRightOutlined, BorderOuterOutlined } from "@ant-design/icons";
-import {
-  Button,
-  Carousel,
-  Col,
-  Drawer,
-  Flex,
-  Image,
-  Modal,
-  Popover,
-  Row,
-  Segmented,
-  Tabs,
-  TabsProps,
-  Typography,
-} from "antd";
+import { Button, Carousel, Flex, Image, Modal, Typography } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useFetchFixturesByProject } from "../../hooks/use-fixtures";
-import useParentDimensions from "../../hooks/use-parent-dimension";
+
 import { useFetchProject } from "../../hooks/use-projects";
 import { useFetchSlidesByProject } from "../../hooks/use-slides";
 import { useFetchSpacesByProject } from "../../hooks/use-spaces";
@@ -28,7 +13,10 @@ import {
 } from "../../interfaces/Fixture";
 import { Slide } from "../../interfaces/Slide";
 import { Space } from "../../interfaces/Space";
-import { maxDesktopWidth } from "../../libs/constants";
+
+import Paragraph from "antd/es/typography/Paragraph";
+import { SpaceCard } from "../../components/common/space-card";
+import ZoomedImage from "../../components/common/zoomed-img";
 import { useDevice } from "../../libs/device";
 import {
   BackIcon,
@@ -39,11 +27,8 @@ import {
   PhotosIcon,
   RupeesIcon,
 } from "../../libs/icons";
-import { COLORS, FONTS } from "../../styles/style-constants";
-import ZoomedImage from "../../components/common/zoomed-img";
-import { SpaceCard } from "../../components/common/space-card";
 import { formatCost } from "../../libs/lvnzy-helper";
-import Paragraph from "antd/es/typography/Paragraph";
+import { COLORS, FONTS } from "../../styles/style-constants";
 
 const SpaceDetails: React.FC = () => {
   const { projectId, spaceId } = useParams();
@@ -97,8 +82,8 @@ const SpaceDetails: React.FC = () => {
     if (!slides) {
       return;
     }
-    const fixtureSlidesTemp = slides?.filter((s: Slide) =>
-      s.fixtures?.includes(fixtureSelected?._id!)
+    const fixtureSlidesTemp = slides?.filter(
+      (s: Slide) => s.fixtures?.includes(fixtureSelected?._id!)
     );
     setFixtureSlides(fixtureSlidesTemp);
     setActiveSlide(0);
@@ -172,9 +157,6 @@ const SpaceDetails: React.FC = () => {
     return "Loading..";
   }
 
-  const validSpaces = filterZombieSpaces(spaces).sort((s1: Space, s2: Space) =>
-    s2._id!.localeCompare(s1._id!)
-  );
 
   const carouselHeight = isMobile ? 400 : Math.min(window.innerHeight) * 0.8;
 
@@ -209,6 +191,8 @@ const SpaceDetails: React.FC = () => {
         <Carousel
           ref={slidesCarouselRef}
           fade={true}
+          speed={2000}
+          autoplaySpeed={3000}
           autoplay={true}
           afterChange={onSlideChange}
           style={{ width: "100%", margin: "auto" }}
@@ -271,7 +255,7 @@ const SpaceDetails: React.FC = () => {
             right: 15,
           }}
         >
-          <Link to={`/project/${projectId}/images`}>
+          <Link to={`/project/${projectId}/images#${spaceData._id}`}>
             <Button size="small" type="default">
               {/* {activeSlide + 1} /{" "} */}
               {/* Add additional 1 to account for preview image */}
@@ -494,7 +478,8 @@ const SpaceDetails: React.FC = () => {
                     borderColor: COLORS.borderColorDark,
                   }}
                   width={100}
-                  src={`/brand-logos/${brand.toLowerCase()}.png`}
+                  preview={false}
+                  src={`/brand-logos/${brand.replaceAll(" ", "-").toLowerCase()}.png`}
                 ></Image>
               ))}
             </Flex>
@@ -516,18 +501,14 @@ const SpaceDetails: React.FC = () => {
             gap={16}
           >
             {" "}
-            {validSpaces
+            {spaces
               .filter((s: Space) => s._id !== spaceData._id)
               .map((space: Space) => {
-                const spaceSlides = slides!.filter((s: Slide) =>
-                  s.spaces!.includes(space!._id!)
-                );
-
                 return (
                   <SpaceCard
                     cardWidth={175}
                     space={space}
-                    slides={spaceSlides}
+                    slides={space.slides}
                     projectId={projectId!}
                     fixtures={fixtures}
                     skipFixtures={true}
