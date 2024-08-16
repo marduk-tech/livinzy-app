@@ -1,7 +1,10 @@
 import { Button, Carousel, Flex, Image, Modal, Typography } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useFetchFixturesByProject } from "../../hooks/use-fixtures";
+import {
+  useFetchFixturesByProject,
+  useGenerateComponentInfo,
+} from "../../hooks/use-fixtures";
 
 import { useFetchProject } from "../../hooks/use-projects";
 import { useFetchSlidesByProject } from "../../hooks/use-slides";
@@ -9,6 +12,7 @@ import { useFetchSpacesByProject } from "../../hooks/use-spaces";
 import {
   BoundingBox,
   Fixture,
+  FixtureComponent,
   FixtureImageBounds,
 } from "../../interfaces/Fixture";
 import { Slide } from "../../interfaces/Slide";
@@ -17,6 +21,7 @@ import { Space } from "../../interfaces/Space";
 import Paragraph from "antd/es/typography/Paragraph";
 import { SpaceCard } from "../../components/common/space-card";
 import ZoomedImage from "../../components/common/zoomed-img";
+import { ComponentInfoModal } from "../../components/component-info-modal";
 import { useDevice } from "../../libs/device";
 import {
   BackIcon,
@@ -28,6 +33,8 @@ import {
   RupeesIcon,
 } from "../../libs/icons";
 import { formatCost } from "../../libs/lvnzy-helper";
+import { queryKeys } from "../../libs/react-query/constants";
+import { queryClient } from "../../libs/react-query/query-client";
 import { COLORS, FONTS } from "../../styles/style-constants";
 
 const SpaceDetails: React.FC = () => {
@@ -35,6 +42,9 @@ const SpaceDetails: React.FC = () => {
   const { isMobile } = useDevice();
   const slidesCarouselRef = useRef(null);
   const [isCostDialogOpen, setIsCostDialogOpen] = useState(false);
+  const [isComponentInfoModalOpen, setIsComponentInfoModalOpen] =
+    useState(false);
+
   const navigate = useNavigate();
 
   const { data: projectData, isLoading: projectDataLoading } = useFetchProject(
@@ -62,6 +72,11 @@ const SpaceDetails: React.FC = () => {
     useFetchFixturesByProject(projectId!);
 
   const [uniqueBrands, setUniqueBrands] = useState<String[]>();
+
+  const generateComponentInfo = useGenerateComponentInfo();
+
+  const [selectedComponent, setSelectedComponent] =
+    useState<FixtureComponent>();
 
   const onSlideChange = (currentSlide: number) => {
     if (!fixtureSlides || !fixtureSlides.length) {
@@ -146,6 +161,36 @@ const SpaceDetails: React.FC = () => {
     });
   };
 
+  const handleComponentGenerateInfo = async (fixtureId: string) => {
+    await generateComponentInfo.mutateAsync(fixtureId);
+
+    await queryClient.invalidateQueries({
+      queryKey: [queryKeys.getSpaces, projectId],
+    });
+  };
+
+  useEffect(() => {
+    if (fixtureSelected) {
+      const componentsWithoutGenDetails = fixtureSelected.components.some(
+        (component) => !component.genDetails
+      );
+
+      if (componentsWithoutGenDetails) {
+        handleComponentGenerateInfo(fixtureSelected?._id as string);
+      }
+    }
+  }, [fixtureSelected]);
+
+  useEffect(() => {
+    if (selectedComponent && fixtureSelected) {
+      const foundComponent = fixtureSelected.components.find(
+        (component) => component._id === selectedComponent._id
+      );
+
+      setSelectedComponent(foundComponent);
+    }
+  }, [selectedComponent, fixtureSelected]);
+
   if (
     !spaceData ||
     fixturesLoading ||
@@ -156,7 +201,6 @@ const SpaceDetails: React.FC = () => {
   ) {
     return "Loading..";
   }
-
 
   const carouselHeight = isMobile ? 400 : Math.min(window.innerHeight) * 0.8;
 
@@ -435,7 +479,17 @@ const SpaceDetails: React.FC = () => {
           {fixtureSelected && fixtureSelected.components
             ? fixtureSelected!.components.map((component: any) => {
                 return (
-                  <Flex align="center" gap={24}>
+                  <Flex
+                    align="center"
+                    gap={24}
+                    style={{
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      setSelectedComponent(component);
+                      setIsComponentInfoModalOpen(true);
+                    }}
+                  >
                     <Image
                       src={`/icons/${component.workType}.png`}
                       width={40}
@@ -479,7 +533,9 @@ const SpaceDetails: React.FC = () => {
                   }}
                   width={100}
                   preview={false}
-                  src={`/brand-logos/${brand.replaceAll(" ", "-").toLowerCase()}.png`}
+                  src={`/brand-logos/${brand
+                    .replaceAll(" ", "-")
+                    .toLowerCase()}.png`}
                 ></Image>
               ))}
             </Flex>
@@ -608,6 +664,13 @@ const SpaceDetails: React.FC = () => {
             </Typography.Text>
           </Flex>
         </Modal>
+
+        <ComponentInfoModal
+          open={isComponentInfoModalOpen}
+          setOpen={setIsComponentInfoModalOpen}
+          selectedComponent={selectedComponent}
+          isLoading={generateComponentInfo.isPending}
+        />
       </Flex>
     </Flex>
   );

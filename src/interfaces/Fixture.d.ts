@@ -20,7 +20,7 @@ export interface Fixture {
     endPoint: { x: number; y: number };
     imageSize: { width: number; height: number };
   };
-  components: any[];
+  components: FixtureComponent[];
 }
 
 export interface FixtureFormData {
@@ -40,4 +40,31 @@ export interface FixtureFormData {
 export interface FixtureImageBounds {
   fixtureId: string;
   boundingBox: BoundingBox;
+}
+
+interface BenefitUsage {
+  title: string;
+  description: string;
+}
+
+interface BrandDescription {
+  title: string;
+  description: string;
+}
+
+interface ComponentInfo {
+  benefitUsages: BenefitUsage[];
+  brandDescription: BrandDescription;
+}
+
+interface FixtureComponent {
+  _id: string;
+  commonName?: string;
+  originalName?: string;
+  workType?: string;
+  brand?: string;
+  oneLiner?: string;
+  material?: string;
+  cost?: number;
+  genDetails?: ComponentInfo;
 }
