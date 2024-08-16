@@ -1,11 +1,11 @@
 import { Flex, Typography } from "antd";
-import { Space } from "../../interfaces/Space";
-import { COLORS, FONTS } from "../../styles/style-constants";
-import { useNavigate } from "react-router-dom";
-import { Slide } from "../../interfaces/Slide";
-import { Fixture } from "../../interfaces/Fixture";
-import { useDevice } from "../../libs/device";
 import Paragraph from "antd/es/typography/Paragraph";
+import { useNavigate } from "react-router-dom";
+import { Fixture } from "../../interfaces/Fixture";
+import { Slide } from "../../interfaces/Slide";
+import { Space } from "../../interfaces/Space";
+import { useDevice } from "../../libs/device";
+import { COLORS, FONTS } from "../../styles/style-constants";
 
 interface SpaceCardProps {
   projectId: string;
@@ -22,7 +22,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
   slides,
   fixtures,
   cardWidth,
-  skipFixtures = false
+  skipFixtures = false,
 }) => {
   const navigate = useNavigate();
   const { isMobile } = useDevice();
@@ -45,12 +45,17 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
     return (
       <Paragraph
         ellipsis={{ rows: 2 }}
-        style={{ color: COLORS.textColorLight, marginBottom: 8, lineHeight: "140%", fontSize: 14 }}
+        style={{
+          color: COLORS.textColorLight,
+          marginBottom: 8,
+          lineHeight: "140%",
+          fontSize: 14,
+        }}
       >
         {space.fixtures.map((fix: Fixture, index: number) => {
-          return `${fix!.fixtureType?.fixtureType || fix!.fixtureType?.fixtureType}${
-            space.fixtures.length === index + 1 ? "" : ", "
-          }`;
+          return `${
+            fix!.fixtureType?.fixtureType || fix!.fixtureType?.fixtureType
+          }${space.fixtures.length === index + 1 ? "" : ", "}`;
         })}
       </Paragraph>
     );
@@ -65,8 +70,8 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
         border: "2px solid",
         borderColor: COLORS.borderColor,
         backgroundColor: "white",
-        width: cardWidth || ("44%"),
-        minWidth: cardWidth || ("44%"),
+        width: cardWidth || "44%",
+        minWidth: cardWidth || "44%",
       }}
     >
       <Flex
@@ -74,12 +79,14 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
         gap={8}
         align="flex-start"
         onClick={() => {
-          navigate(`/project/${projectId}/space/${space._id}`, {replace: true});
+          navigate(`/project/${projectId}/space/${space._id}`, {
+            replace: true,
+          });
         }}
       >
         <Typography.Text
           style={{
-            backgroundImage: `url(${slides[0]!.url})`,
+            backgroundImage: `url(${slides[0]?.url})`,
             backgroundPosition: "center",
             backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
