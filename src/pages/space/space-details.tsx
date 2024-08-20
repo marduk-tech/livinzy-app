@@ -137,7 +137,16 @@ const SpaceDetails: React.FC = () => {
     const spaceFixtures = tempSpaceData!.fixtures;
 
     setSpaceFixtures(spaceFixtures);
-    setFixtureSelected(spaceFixtures[0]);
+    if (!fixtureSelected) {
+      setFixtureSelected(spaceFixtures[0]);
+    } else {
+      const foundFixture = spaceFixtures.find(
+        (fixture: Fixture) => fixture._id === fixtureSelected._id
+      );
+      if (foundFixture) {
+        setFixtureSelected(foundFixture);
+      }
+    }
 
     const brandsArr: string[] = [];
     spaceFixtures.forEach((fix: Fixture) => {
