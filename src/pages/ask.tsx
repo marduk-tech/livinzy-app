@@ -82,11 +82,6 @@ const AskPage: React.FC = () => {
                 return [];
               },
             }}
-            sendButtonRender={() => (
-              <Button style={{ color: theme.colorPrimary }}>
-                <SendOutlined />
-              </Button>
-            )}
             locale="en-US"
             helloMessage={"Hi there! I'm Liv. How can I help you?"}
             request={handleRequest}
