@@ -5,6 +5,9 @@ import { DashboardLayout } from "../layouts/dashboard-layout";
 
 // Pages
 import { AuthenticatedRoute } from "../components/authenticated-route";
+import { useDevice } from "../libs/device";
+import AskPage from "../pages/ask";
+
 import { LoginPage } from "../pages/auth/login";
 import Home from "../pages/home";
 import { ProfilePage } from "../pages/profile";
@@ -13,7 +16,6 @@ import { ProjectImagesPage } from "../pages/project/project-images";
 import SearchProjectsPage from "../pages/project/search";
 import Projects from "../pages/projects";
 import SpaceDetails from "../pages/space/space-details";
-import { useDevice } from "../libs/device";
 
 export const Router = () => {
   const { isMobile } = useDevice();
@@ -53,6 +55,8 @@ export const Router = () => {
       />
 
       <Route path="/project/search" element={<SearchProjectsPage />} />
+
+      <Route path="/ask" element={<AskPage />} />
 
       <Route path="/*" element={<div>404</div>} />
     </Routes>
